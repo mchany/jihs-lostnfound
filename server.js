@@ -83,14 +83,14 @@ async function route(req, res) {
   const pathname = url.pathname;
 
   if (pathname === '/api/posts' && req.method === 'GET') {
-    return send(res, 200, { posts: getPosts().map(publicPost) });
+    return send(res, 200, { posts: (await getPosts()).map(publicPost) });
   }
   if (pathname === '/api/posts' && req.method === 'POST') {
     const input = validatePost(await readBody(req), { creating: true });
     const passwordFields = await hashPassword(input.password);
     const now = new Date().toISOString();
     let photo = '';
-    try { photo = savePhoto(input.photoData); }
+    try { photo = await savePhoto(input.photoData); }
     catch (error) { throw error; }
     const post = {
       id: cryptoRandomId(), type: input.type, item: input.item, location: input.location,
@@ -98,13 +98,14 @@ async function route(req, res) {
       detailedDescription: input.detailedDescription, nickname: input.nickname,
       photo, comments: [], createdAt: now, updatedAt: now, ...passwordFields
     };
-    return send(res, 201, { posts: insertPost(post).map(publicPost) });
+    await insertPost(post);
+    return send(res, 201, { posts: (await getPosts()).map(publicPost) });
   }
 
   const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments))?$/i);
   if (match) {
     const [, id, action] = match;
-    const post = findPost(id);
+    const post = await findPost(id);
     if (!post) return fail(res, 404, '게시물을 찾을 수 없어요.');
 
     if (!action && req.method === 'GET') return send(res, 200, { post: detailedPost(post) });
@@ -117,7 +118,7 @@ async function route(req, res) {
       if (post.type !== 'lost') return fail(res, 400, '분실 게시물에만 댓글을 남길 수 있어요.');
       const comment = validateComment(await readBody(req));
       const created = { id: cryptoRandomId(), ...comment, createdAt: new Date().toISOString() };
-      return send(res, 201, { comments: appendComment(id, created) });
+      return send(res, 201, { comments: await appendComment(id, created) });
     }
     if (!action && req.method === 'PUT') {
       const body = await readBody(req);
@@ -125,21 +126,21 @@ async function route(req, res) {
       const input = validatePost(body);
       let photo = post.photo || '';
       if (input.photoData === '') photo = '';
-      else if (input.photoData !== post.photo) photo = savePhoto(input.photoData);
+      else if (input.photoData !== post.photo) photo = await savePhoto(input.photoData);
       const updated = {
         ...post, type: input.type, item: input.item, location: input.location,
         storage: input.storage, simpleDescription: input.simpleDescription,
         detailedDescription: input.detailedDescription, nickname: input.nickname,
         photo, updatedAt: new Date().toISOString()
       };
-      replacePost(id, updated);
-      if (post.photo && post.photo !== photo) removePhoto(post.photo);
-      return send(res, 200, { posts: getPosts().map(publicPost) });
+      await replacePost(id, updated);
+      if (post.photo && post.photo !== photo) await removePhoto(post.photo);
+      return send(res, 200, { posts: (await getPosts()).map(publicPost) });
     }
     if (!action && req.method === 'DELETE') {
       const body = await readBody(req);
       if (!await verifyPassword(String(body.password || ''), post)) return fail(res, 403, '비밀번호가 맞지 않아요.');
-      return send(res, 200, { posts: removePost(id).map(publicPost) });
+      return send(res, 200, { posts: (await removePost(id)).map(publicPost) });
     }
   }
 
