@@ -1,4 +1,4 @@
-html[data-theme="dark"]{color-scheme:dark;--ink:#f2f5fa;--muted:#a4b5d1;--line:#496894;--paper:#1d3156;--white:#263b61;--green:#a4b5d1;--green-dark:#b0cbe6;--mint:#263b61;--orange:#fed6ce}
+html[data-theme="dark"]{color-scheme:dark;--ink:#f2f5fa;--muted:#a4b5d1;--line:#496894;--paper:#202123;--white:#263b61;--green:#a4b5d1;--green-dark:#b0cbe6;--mint:#263b61;--orange:#fed6ce}
 html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
 html[data-theme="dark"] .topbar,html[data-theme="dark"] .hero,html[data-theme="dark"] .site-footer{border-color:#496894}
 html[data-theme="dark"] .topbar-note,html[data-theme="dark"] .hero-desc,html[data-theme="dark"] .section-caption,html[data-theme="dark"] .hero-bottom,html[data-theme="dark"] .board-intro,html[data-theme="dark"] .board-footer,html[data-theme="dark"] .site-footer{color:#a4b5d1}
