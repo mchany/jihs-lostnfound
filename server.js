@@ -55,7 +55,7 @@ function serveStatic(res, pathname) {
   catch { res.writeHead(400).end(); return; }
 
   const relative = decoded === '/' ? 'index.html' : decoded.slice(1);
-  const isPublicFile = new Set(['index.html', 'detail.html', 'styles.css', 'components.css', 'detail.css', 'theme.css']).has(relative);
+  const isPublicFile = new Set(['index.html', 'detail.html', 'styles.css', 'components.css', 'detail.css', 'theme.css', 'school-emblem.png']).has(relative);
   const isScript = /^js\/[a-z\d-]+\.js$/i.test(relative);
   const isUpload = /^uploads\/[a-f\d-]+\.(?:jpg|png|webp|gif)$/i.test(relative);
   if (!isPublicFile && !isScript && !isUpload) { res.writeHead(404).end('Not found'); return; }
