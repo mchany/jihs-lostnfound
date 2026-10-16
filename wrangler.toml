@@ -4,5 +4,5 @@ pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
-database_name = "<jungil-lost-and-found>"
-database_id = "<5cee0766-8bdb-4e55-b06e-b7ffa421e4f7>"
+database_name = "jungil-lost-and-found"
+database_id = "5cee0766-8bdb-4e55-b06e-b7ffa421e4f7"
