@@ -96,30 +96,35 @@ function renderPost(post) {
     : '<span class="placeholder-icon">⌕</span>';
 
   const commentsPanel = $('#commentsPanel');
-  commentsPanel.hidden = post.type !== 'lost';
+  commentsPanel.hidden = false;
+  $('#commentsTitle').textContent = post.type === 'found' ? '주인을 알고 계신가요?' : '찾았어요? 알려 주세요.';
+  $('#commentsHint').textContent = post.type === 'found'
+    ? '이 물건의 주인을 알고 계시다면 댓글로 소식을 남겨 주세요.'
+    : '이 분실물을 보았거나 습득했다면 댓글로 소식을 남겨 주세요.';
   $('#detailMain').hidden = false;
   renderComments(post.comments || []);
 
-  if (post.type === 'lost') {
-    $('#commentForm').addEventListener('submit', async event => {
-      event.preventDefault();
-      $('#commentError').textContent = '';
-      const data = new FormData(event.currentTarget);
-      const comment = {
-        nickname: String(data.get('nickname') || '').trim(),
-        content: String(data.get('content') || '').trim(),
-        password: String(data.get('password') || '')
-      };
-      try {
-        const result = await addComment(post.id, comment);
-        post.comments = result.comments;
-        renderComments(post.comments);
-        event.currentTarget.reset();
-        showToast('댓글을 남겼어요.');
-      } catch (error) { $('#commentError').textContent = error.message; }
-    });
-  }
 }
+
+
+$('#commentForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!currentPost) return;
+  $('#commentError').textContent = '';
+  const data = new FormData(event.currentTarget);
+  const comment = {
+    nickname: String(data.get('nickname') || '').trim(),
+    content: String(data.get('content') || '').trim(),
+    password: String(data.get('password') || '')
+  };
+  try {
+    const result = await addComment(currentPost.id, comment);
+    currentPost.comments = result.comments;
+    renderComments(currentPost.comments);
+    event.currentTarget.reset();
+    showToast('댓글을 남겼어요.');
+  } catch (error) { $('#commentError').textContent = error.message; }
+});
 
 const id = new URLSearchParams(location.search).get('id');
 if (!id) {

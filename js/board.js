@@ -18,7 +18,7 @@ export function renderBoard(posts, activeBoard, query = '') {
       : `<div class="post-placeholder"><span class="placeholder-icon">${post.type === 'found' ? '⌕' : '↗'}</span></div>`;
     const storage = post.type === 'found'
       ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
-    const comments = post.type === 'lost' ? `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>` : '';
+    const comments = `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>`;
     const isResolved = post.type === 'lost' && Boolean(post.resolved);
     const resolvedClass = isResolved ? ' is-resolved' : '';
     const resolvedBanner = isResolved ? '<span class="post-resolved-banner">주인을 찾았어요</span>' : '';

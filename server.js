@@ -127,7 +127,7 @@ async function route(req, res) {
       return send(res, 200, { posts: (await getPosts()).map(publicPost) });
     }
     if (action === 'comments' && req.method === 'POST' && !commentId) {
-      if (post.type !== 'lost') return fail(res, 400, '분실 게시물에만 댓글을 남길 수 있어요.');
+
       const input = validateComment(await readBody(req));
       const passwordFields = await hashPassword(input.password);
       const { password, ...commentFields } = input;

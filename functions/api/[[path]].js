@@ -189,7 +189,7 @@ async function handle(request, env) {
   }
 
   if (action === 'comments' && !commentId && method === 'POST') {
-    if (post.type !== 'lost') return json({ error: '분실 게시물에만 댓글을 남길 수 있어요.' }, 400);
+
     const input = validateComment(await readBody(request));
     const passwordFields = await hashPassword(input.password, env.PASSWORD_PEPPER);
     const created = { id: crypto.randomUUID(), ...input, ...passwordFields, createdAt: new Date().toISOString() };
@@ -201,7 +201,7 @@ async function handle(request, env) {
   }
 
   if (action === 'comments' && commentId && (method === 'PUT' || method === 'DELETE')) {
-    if (post.type !== 'lost') return json({ error: '분실 게시물에만 댓글을 남길 수 있어요.' }, 400);
+
     const body = await readBody(request);
     const credentials = validateCommentCredentials(body);
     const row = await env.DB.prepare('SELECT id, nickname, password_salt, password_hash FROM post_comments WHERE id = ? AND post_id = ? LIMIT 1').bind(commentId, id).first();
