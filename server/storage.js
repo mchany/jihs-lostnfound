@@ -32,6 +32,7 @@ function migratePost(post) {
     simpleDescription: post.simpleDescription ?? legacyDescription.slice(0, 120),
     detailedDescription: post.detailedDescription ?? legacyDescription,
     storage: post.type === 'lost' ? '' : String(post.storage || ''),
+    resolved: post.type === 'lost' && Boolean(post.resolved),
     comments: Array.isArray(post.comments) ? post.comments.filter(comment => comment?.passwordSalt && comment?.passwordHash) : []
   };
   delete migrated.description;

@@ -38,6 +38,7 @@ function toPublicPost(row) {
     simpleDescription: row.simple_description,
     nickname: row.nickname,
     photo: row.photo || '',
+    resolved: Boolean(row.resolved),
     commentCount: Number(row.comment_count || 0),
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -58,23 +59,34 @@ let commentSchemaMigration;
 async function ensureCommentSchema(db) {
   if (!commentSchemaMigration) {
     commentSchemaMigration = (async () => {
-      const table = await db.prepare('PRAGMA table_info(post_comments)').all();
-      const columns = new Set((table.results || []).map(column => column.name));
-      if (!columns.has('password_salt') || !columns.has('password_hash')) {
-        const statements = [db.prepare('DELETE FROM post_comments')];
-        if (!columns.has('password_salt')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_salt TEXT NOT NULL DEFAULT ''"));
-        if (!columns.has('password_hash')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''"));
+      const [commentTable, postTable] = await Promise.all([
+        db.prepare('PRAGMA table_info(post_comments)').all(),
+        db.prepare('PRAGMA table_info(posts)').all()
+      ]);
+      const commentColumns = new Set((commentTable.results || []).map(column => column.name));
+      const postColumns = new Set((postTable.results || []).map(column => column.name));
+      const statements = [];
+      if (!commentColumns.has('password_salt') || !commentColumns.has('password_hash')) {
+        statements.push(db.prepare('DELETE FROM post_comments'));
+        if (!commentColumns.has('password_salt')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_salt TEXT NOT NULL DEFAULT ''"));
+        if (!commentColumns.has('password_hash')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''"));
+      }
+      if (!postColumns.has('resolved')) statements.push(db.prepare('ALTER TABLE posts ADD COLUMN resolved INTEGER NOT NULL DEFAULT 0'));
+      if (statements.length) {
         try {
           await db.batch(statements);
         } catch (error) {
-          const refreshed = await db.prepare('PRAGMA table_info(post_comments)').all();
-          const ready = new Set((refreshed.results || []).map(column => column.name));
-          if (!ready.has('password_salt') || !ready.has('password_hash')) throw error;
+          const [refreshedComments, refreshedPosts] = await Promise.all([
+            db.prepare('PRAGMA table_info(post_comments)').all(),
+            db.prepare('PRAGMA table_info(posts)').all()
+          ]);
+          const readyComments = new Set((refreshedComments.results || []).map(column => column.name));
+          const readyPosts = new Set((refreshedPosts.results || []).map(column => column.name));
+          if (!readyComments.has('password_salt') || !readyComments.has('password_hash') || !readyPosts.has('resolved')) throw error;
         }
-      } else {
-        const legacy = await db.prepare("SELECT COUNT(*) AS count FROM post_comments WHERE password_salt = '' OR password_hash = ''").first();
-        if (Number(legacy?.count || 0) > 0) await db.prepare('DELETE FROM post_comments').run();
       }
+      const legacy = await db.prepare("SELECT COUNT(*) AS count FROM post_comments WHERE password_salt = '' OR password_hash = ''").first();
+      if (Number(legacy?.count || 0) > 0) await db.prepare('DELETE FROM post_comments').run();
     })().catch(error => {
       commentSchemaMigration = null;
       throw error;
@@ -152,7 +164,7 @@ async function handle(request, env) {
     return json({ posts: await listPosts(env.DB) }, 201);
   }
 
-  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments)(?:\/([0-9a-f-]+))?)?$/i);
+  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|resolve|comments)(?:\/([0-9a-f-]+))?)?$/i);
   if (!match) return json({ error: '요청한 경로를 찾을 수 없어요.' }, 404);
   const [, id, action, commentId] = match;
   const post = await getPost(env.DB, id);
@@ -164,6 +176,16 @@ async function handle(request, env) {
     const body = await readBody(request);
     if (!await verifyPassword(String(body.password || ''), post, env.PASSWORD_PEPPER)) return json({ error: '비밀번호가 맞지 않아요.' }, 403);
     return json({ ok: true });
+  }
+
+  if (action === 'resolve' && method === 'POST') {
+    if (post.type !== 'lost') return json({ error: '분실 게시물만 찾음 상태로 바꿀 수 있어요.' }, 400);
+    const body = await readBody(request);
+    if (typeof body.resolved !== 'boolean') return json({ error: '변경할 상태를 확인해 주세요.' }, 400);
+    if (!await verifyPassword(String(body.password || ''), post, env.PASSWORD_PEPPER)) return json({ error: '비밀번호가 맞지 않아요.' }, 403);
+    await env.DB.prepare('UPDATE posts SET resolved = ?, updated_at = ? WHERE id = ?')
+      .bind(body.resolved ? 1 : 0, new Date().toISOString(), id).run();
+    return json({ posts: await listPosts(env.DB) });
   }
 
   if (action === 'comments' && !commentId && method === 'POST') {
@@ -209,8 +231,8 @@ async function handle(request, env) {
     const updatedAt = new Date().toISOString();
     try {
       await env.DB.prepare(`
-        UPDATE posts SET type = ?, item = ?, location = ?, storage = ?, simple_description = ?, detailed_description = ?, nickname = ?, photo = ?, updated_at = ? WHERE id = ?
-      `).bind(input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, updatedAt, id).run();
+        UPDATE posts SET type = ?, item = ?, location = ?, storage = ?, simple_description = ?, detailed_description = ?, nickname = ?, photo = ?, resolved = ?, updated_at = ? WHERE id = ?
+      `).bind(input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, input.type === 'lost' && post.resolved ? 1 : 0, updatedAt, id).run();
     } catch (error) {
       if (photo !== post.photo) await deletePhoto(env.IMAGES, photo);
       throw error;

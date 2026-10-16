@@ -19,16 +19,22 @@ export function renderBoard(posts, activeBoard, query = '') {
     const storage = post.type === 'found'
       ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
     const comments = post.type === 'lost' ? `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>` : '';
+    const isResolved = post.type === 'lost' && Boolean(post.resolved);
+    const resolvedClass = isResolved ? ' is-resolved' : '';
+    const resolvedBanner = isResolved ? '<span class="post-resolved-banner">주인을 찾았어요</span>' : '';
+    const resolveAction = post.type === 'lost'
+      ? `<button type="button" data-action="${isResolved ? 'reopen' : 'resolve'}" data-id="${escapeHTML(post.id)}">${isResolved ? '찾음 취소' : '주인을 찾았어요'}</button>`
+      : '';
     return `<article class="post-card">
       <a class="post-open" href="${detailUrl}">
-        <div class="post-image">${photo}<span class="post-type ${post.type}">${boardName(post.type)}</span></div>
+        <div class="post-image${resolvedClass}">${photo}${resolvedBanner}<span class="post-type ${post.type}">${boardName(post.type)}</span></div>
         <div class="post-body"><div class="post-title-row"><h3 class="post-title">${escapeHTML(post.item)}</h3><span class="post-date">${formatDate(post.createdAt)}</span></div>
           <p class="post-desc">${escapeHTML(post.simpleDescription)}</p>
           <div class="post-meta"><div class="meta-line"><span>${post.type === 'found' ? '습득' : '분실'} 장소</span><b>${escapeHTML(post.location)}</b></div>${storage}</div>
           <div class="post-author"><span class="author-name"><span class="author-avatar">${escapeHTML((post.nickname || '?').slice(0, 1))}</span>${escapeHTML(post.nickname)}</span>${comments}</div>
         </div>
       </a>
-      <div class="post-actions"><button type="button" data-action="edit" data-id="${escapeHTML(post.id)}">수정</button><button type="button" data-action="delete" data-id="${escapeHTML(post.id)}">삭제</button></div>
+      <div class="post-actions">${resolveAction}<button type="button" data-action="edit" data-id="${escapeHTML(post.id)}">수정</button><button type="button" data-action="delete" data-id="${escapeHTML(post.id)}">삭제</button></div>
     </article>`;
   }).join('');
 

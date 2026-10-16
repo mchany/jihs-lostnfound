@@ -66,3 +66,5 @@ html[data-theme="dark"] .toast{background:#496894;color:#fff}
 .topbar-tools{display:flex;align-items:center;gap:24px}.theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid #d7e0ed;border-radius:20px;background:#f6f8fc;padding:7px 10px;color:#496894;font:500 10px 'Noto Sans KR',sans-serif;cursor:pointer;transition:background .2s,border-color .2s,color .2s}.theme-toggle:hover{background:#b0cbe6;border-color:#a4b5d1}.theme-icon{font:16px 'DM Sans',sans-serif;line-height:1}.detail-shell .topbar-tools{gap:18px}.detail-shell .theme-toggle{margin-left:0}@media(max-width:600px){.topbar-tools{gap:10px}.topbar-tools .topbar-note{font-size:0}.topbar-tools .topbar-note .live-dot{margin-right:0}.theme-toggle{padding:6px 8px;font-size:9px;gap:5px}.theme-icon{font-size:15px}.detail-shell .topbar-tools{gap:9px}.back-link{font-size:10px}}
 
 html[data-theme="dark"] .brand-logo-light{display:none}html[data-theme="dark"] .brand-logo-dark{display:block}
+
+html[data-theme="dark"] .post-image.is-resolved:after{background:#1d3156a6}html[data-theme="dark"] .post-resolved-banner{background:#fed6ce;color:#1d3156}

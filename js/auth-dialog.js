@@ -11,11 +11,17 @@ export function openAuthDialog(action, post) {
   form.reset();
   $('#authError').textContent = '';
   const isEdit = action === 'edit';
-  $('#authTitle').textContent = isEdit ? '게시물 수정' : '게시물 삭제';
+  const isResolve = action === 'resolve';
+  const isReopen = action === 'reopen';
+  $('#authTitle').textContent = isEdit ? '게시물 수정' : isResolve ? '주인을 찾았어요' : isReopen ? '찾음 상태 취소' : '게시물 삭제';
   $('#authCopy').textContent = isEdit
     ? '게시물을 올릴 때 설정한 비밀번호를 입력해 주세요.'
-    : '이 게시물의 비밀번호를 입력하면 삭제됩니다.';
-  $('#authSubmit').innerHTML = isEdit ? '수정하기 <span>↗</span>' : '삭제하기 <span>↗</span>';
+    : isResolve
+      ? '게시물 작성 때 설정한 비밀번호를 입력하면 썸네일에 찾음 상태가 표시됩니다.'
+      : isReopen
+        ? '게시물 작성 때 설정한 비밀번호를 입력하면 찾음 상태를 취소합니다.'
+        : '이 게시물의 비밀번호를 입력하면 삭제됩니다.';
+  $('#authSubmit').innerHTML = isEdit ? '수정하기 <span>↗</span>' : isResolve ? '주인을 찾았어요 <span>↗</span>' : isReopen ? '찾음 취소 <span>↗</span>' : '삭제하기 <span>↗</span>';
   dialog.showModal();
 }
 

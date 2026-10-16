@@ -12,6 +12,7 @@ export const createPost = post => request('/posts', { method: 'POST', body: JSON
 export const updatePost = (id, post) => request(`/posts/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(post) });
 export const deletePost = (id, password) => request(`/posts/${encodeURIComponent(id)}`, { method: 'DELETE', body: JSON.stringify({ password }) });
 export const verifyPostPassword = (id, password) => request(`/posts/${encodeURIComponent(id)}/verify`, { method: 'POST', body: JSON.stringify({ password }) });
+export const setPostResolved = (id, password, resolved) => request(`/posts/${encodeURIComponent(id)}/resolve`, { method: 'POST', body: JSON.stringify({ password, resolved }) });
 export const addComment = (id, comment) => request(`/posts/${encodeURIComponent(id)}/comments`, { method: 'POST', body: JSON.stringify(comment) });
 
 export const updateComment = (postId, commentId, comment) => request(`/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, { method: 'PUT', body: JSON.stringify(comment) });

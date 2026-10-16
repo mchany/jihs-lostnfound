@@ -1,4 +1,4 @@
-import { listPosts, createPost, updatePost, deletePost, verifyPostPassword } from './api.js';
+import { listPosts, createPost, updatePost, deletePost, verifyPostPassword, setPostResolved } from './api.js';
 import { $, $$, showToast } from './dom.js';
 import { renderBoard } from './board.js';
 import { initPostForm, openPostEditor, closePostForm } from './post-form.js';
@@ -35,6 +35,14 @@ initAuthDialog(async ({ action, post, password }) => {
   if (action === 'edit') {
     await verifyPostPassword(post.id, password);
     openPostEditor(post, password);
+    return;
+  }
+  if (action === 'resolve' || action === 'reopen') {
+    const resolved = action === 'resolve';
+    const result = await setPostResolved(post.id, password, resolved);
+    posts = result.posts;
+    render();
+    showToast(resolved ? '주인을 찾았어요!' : '찾음 상태를 취소했어요.');
     return;
   }
   const result = await deletePost(post.id, password);

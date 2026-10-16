@@ -59,7 +59,7 @@ function serveStatic(res, pathname) {
   catch { res.writeHead(400).end(); return; }
 
   const relative = decoded === '/' ? 'index.html' : decoded.slice(1);
-  const isPublicFile = new Set(['index.html', 'detail.html', 'styles.css', 'components.css', 'detail.css', 'theme.css', 'school-emblem.png']).has(relative);
+  const isPublicFile = new Set(['index.html', 'detail.html', 'styles.css', 'components.css', 'detail.css', 'theme.css', 'school-emblem.png', 'school-emblem-dark.png']).has(relative);
   const isScript = /^js\/[a-z\d-]+\.js$/i.test(relative);
   const isUpload = /^uploads\/[a-f\d-]+\.(?:jpg|png|webp|gif)$/i.test(relative);
   if (!isPublicFile && !isScript && !isUpload) { res.writeHead(404).end('Not found'); return; }
@@ -100,13 +100,13 @@ async function route(req, res) {
       id: cryptoRandomId(), type: input.type, item: input.item, location: input.location,
       storage: input.storage, simpleDescription: input.simpleDescription,
       detailedDescription: input.detailedDescription, nickname: input.nickname,
-      photo, comments: [], createdAt: now, updatedAt: now, ...passwordFields
+      photo, comments: [], resolved: false, createdAt: now, updatedAt: now, ...passwordFields
     };
     await insertPost(post);
     return send(res, 201, { posts: (await getPosts()).map(publicPost) });
   }
 
-  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments)(?:\/([0-9a-f-]+))?)?$/i);
+  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|resolve|comments)(?:\/([0-9a-f-]+))?)?$/i);
   if (match) {
     const [, id, action, commentId] = match;
     const post = await findPost(id);
@@ -117,6 +117,14 @@ async function route(req, res) {
       const body = await readBody(req);
       if (!await verifyPassword(String(body.password || ''), post)) return fail(res, 403, '비밀번호가 맞지 않아요.');
       return send(res, 200, { ok: true });
+    }
+    if (action === 'resolve' && req.method === 'POST') {
+      if (post.type !== 'lost') return fail(res, 400, '분실 게시물만 찾음 상태로 바꿀 수 있어요.');
+      const body = await readBody(req);
+      if (typeof body.resolved !== 'boolean') return fail(res, 400, '변경할 상태를 확인해 주세요.');
+      if (!await verifyPassword(String(body.password || ''), post)) return fail(res, 403, '비밀번호가 맞지 않아요.');
+      await replacePost(id, { ...post, resolved: body.resolved, updatedAt: new Date().toISOString() });
+      return send(res, 200, { posts: (await getPosts()).map(publicPost) });
     }
     if (action === 'comments' && req.method === 'POST' && !commentId) {
       if (post.type !== 'lost') return fail(res, 400, '분실 게시물에만 댓글을 남길 수 있어요.');
@@ -154,7 +162,7 @@ async function route(req, res) {
         ...post, type: input.type, item: input.item, location: input.location,
         storage: input.storage, simpleDescription: input.simpleDescription,
         detailedDescription: input.detailedDescription, nickname: input.nickname,
-        photo, updatedAt: new Date().toISOString()
+        photo, resolved: input.type === 'lost' && Boolean(post.resolved), updatedAt: new Date().toISOString()
       };
       await replacePost(id, updated);
       if (post.photo && post.photo !== photo) await removePhoto(post.photo);
