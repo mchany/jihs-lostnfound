@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS post_comments (
   post_id TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
   nickname TEXT NOT NULL,
   content TEXT NOT NULL,
+  password_salt TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
 

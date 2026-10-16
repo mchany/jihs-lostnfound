@@ -32,7 +32,7 @@ function migratePost(post) {
     simpleDescription: post.simpleDescription ?? legacyDescription.slice(0, 120),
     detailedDescription: post.detailedDescription ?? legacyDescription,
     storage: post.type === 'lost' ? '' : String(post.storage || ''),
-    comments: Array.isArray(post.comments) ? post.comments : []
+    comments: Array.isArray(post.comments) ? post.comments.filter(comment => comment?.passwordSalt && comment?.passwordHash) : []
   };
   delete migrated.description;
   return migrated;
@@ -59,6 +59,23 @@ export async function removePost(id) {
 export async function appendComment(id, comment) {
   const post = posts.find(item => item.id === id);
   post.comments = [...(post.comments || []), comment];
+  writeFile(posts);
+  return post.comments;
+}
+
+export async function findComment(postId, commentId) {
+  const post = await findPost(postId);
+  return post?.comments?.find(comment => comment.id === commentId) || null;
+}
+export async function replaceComment(postId, updatedComment) {
+  const post = await findPost(postId);
+  post.comments = post.comments.map(comment => comment.id === updatedComment.id ? updatedComment : comment);
+  writeFile(posts);
+  return post.comments;
+}
+export async function removeComment(postId, commentId) {
+  const post = await findPost(postId);
+  post.comments = post.comments.filter(comment => comment.id !== commentId);
   writeFile(posts);
   return post.comments;
 }

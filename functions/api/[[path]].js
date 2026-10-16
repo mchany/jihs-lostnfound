@@ -1,4 +1,4 @@
-import { validateComment, validatePost } from '../../server/validation.js';
+import { validateComment, validateCommentCredentials, validatePost } from '../../server/validation.js';
 import { hashPassword, verifyPassword } from '../_shared/security.js';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -50,8 +50,37 @@ function toPost(row, comments = []) {
     detailedDescription: row.detailed_description || '',
     passwordSalt: row.password_salt,
     passwordHash: row.password_hash,
-    comments
+    comments: comments.map(({ passwordSalt, passwordHash, ...comment }) => comment)
   };
+}
+
+let commentSchemaMigration;
+async function ensureCommentSchema(db) {
+  if (!commentSchemaMigration) {
+    commentSchemaMigration = (async () => {
+      const table = await db.prepare('PRAGMA table_info(post_comments)').all();
+      const columns = new Set((table.results || []).map(column => column.name));
+      if (!columns.has('password_salt') || !columns.has('password_hash')) {
+        const statements = [db.prepare('DELETE FROM post_comments')];
+        if (!columns.has('password_salt')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_salt TEXT NOT NULL DEFAULT ''"));
+        if (!columns.has('password_hash')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''"));
+        try {
+          await db.batch(statements);
+        } catch (error) {
+          const refreshed = await db.prepare('PRAGMA table_info(post_comments)').all();
+          const ready = new Set((refreshed.results || []).map(column => column.name));
+          if (!ready.has('password_salt') || !ready.has('password_hash')) throw error;
+        }
+      } else {
+        const legacy = await db.prepare("SELECT COUNT(*) AS count FROM post_comments WHERE password_salt = '' OR password_hash = ''").first();
+        if (Number(legacy?.count || 0) > 0) await db.prepare('DELETE FROM post_comments').run();
+      }
+    })().catch(error => {
+      commentSchemaMigration = null;
+      throw error;
+    });
+  }
+  return commentSchemaMigration;
 }
 
 async function listPosts(db) {
@@ -99,6 +128,7 @@ async function deletePhoto(bucket, photo) {
 
 async function handle(request, env) {
   if (!env.DB || !env.IMAGES) throw new Error('Cloudflare D1(DB)와 R2(IMAGES) 바인딩을 설정해 주세요.');
+  await ensureCommentSchema(env.DB);
   const { pathname } = new URL(request.url);
   const method = request.method;
 
@@ -122,9 +152,9 @@ async function handle(request, env) {
     return json({ posts: await listPosts(env.DB) }, 201);
   }
 
-  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments))?$/i);
+  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments)(?:\/([0-9a-f-]+))?)?$/i);
   if (!match) return json({ error: '요청한 경로를 찾을 수 없어요.' }, 404);
-  const [, id, action] = match;
+  const [, id, action, commentId] = match;
   const post = await getPost(env.DB, id);
   if (!post) return json({ error: '게시물을 찾을 수 없어요.' }, 404);
 
@@ -136,15 +166,37 @@ async function handle(request, env) {
     return json({ ok: true });
   }
 
-  if (action === 'comments' && method === 'POST') {
+  if (action === 'comments' && !commentId && method === 'POST') {
     if (post.type !== 'lost') return json({ error: '분실 게시물에만 댓글을 남길 수 있어요.' }, 400);
-    const comment = validateComment(await readBody(request));
-    const created = { id: crypto.randomUUID(), ...comment, createdAt: new Date().toISOString() };
-    await env.DB.prepare('INSERT INTO post_comments (id, post_id, nickname, content, created_at) VALUES (?, ?, ?, ?, ?)')
-      .bind(created.id, id, created.nickname, created.content, created.createdAt).run();
+    const input = validateComment(await readBody(request));
+    const passwordFields = await hashPassword(input.password, env.PASSWORD_PEPPER);
+    const created = { id: crypto.randomUUID(), ...input, ...passwordFields, createdAt: new Date().toISOString() };
+    await env.DB.prepare('INSERT INTO post_comments (id, post_id, nickname, content, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .bind(created.id, id, created.nickname, created.content, passwordFields.passwordSalt, passwordFields.passwordHash, created.createdAt).run();
     const result = await env.DB.prepare('SELECT id, nickname, content, created_at FROM post_comments WHERE post_id = ? ORDER BY created_at ASC').bind(id).all();
     const comments = (result.results || []).map(item => ({ id: item.id, nickname: item.nickname, content: item.content, createdAt: item.created_at }));
     return json({ comments }, 201);
+  }
+
+  if (action === 'comments' && commentId && (method === 'PUT' || method === 'DELETE')) {
+    if (post.type !== 'lost') return json({ error: '분실 게시물에만 댓글을 남길 수 있어요.' }, 400);
+    const body = await readBody(request);
+    const credentials = validateCommentCredentials(body);
+    const row = await env.DB.prepare('SELECT id, nickname, password_salt, password_hash FROM post_comments WHERE id = ? AND post_id = ? LIMIT 1').bind(commentId, id).first();
+    if (!row) return json({ error: '댓글을 찾을 수 없어요.' }, 404);
+    const passwordValid = await verifyPassword(credentials.password, { passwordSalt: row.password_salt, passwordHash: row.password_hash }, env.PASSWORD_PEPPER);
+    if (!passwordValid || credentials.nickname !== row.nickname) return json({ error: '닉네임 또는 비밀번호가 맞지 않아요.' }, 403);
+    if (method === 'PUT') {
+      const input = validateComment(body);
+      await env.DB.prepare('UPDATE post_comments SET content = ? WHERE id = ? AND post_id = ?')
+        .bind(input.content, commentId, id).run();
+    } else {
+      await env.DB.prepare('DELETE FROM post_comments WHERE id = ? AND post_id = ?')
+        .bind(commentId, id).run();
+    }
+    const result = await env.DB.prepare('SELECT id, nickname, content, created_at FROM post_comments WHERE post_id = ? ORDER BY created_at ASC').bind(id).all();
+    const comments = (result.results || []).map(item => ({ id: item.id, nickname: item.nickname, content: item.content, createdAt: item.created_at }));
+    return json({ comments });
   }
 
   if (!action && method === 'PUT') {

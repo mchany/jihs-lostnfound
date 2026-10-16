@@ -4,8 +4,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { hashPassword, verifyPassword } from './server/security.js';
-import { getPosts, findPost, insertPost, replacePost, removePost, appendComment, savePhoto, removePhoto } from './server/storage.js';
-import { validatePost, validateComment } from './server/validation.js';
+import { getPosts, findPost, insertPost, replacePost, removePost, appendComment, findComment, replaceComment, removeComment, savePhoto, removePhoto } from './server/storage.js';
+import { validatePost, validateComment, validateCommentCredentials } from './server/validation.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -15,9 +15,13 @@ function publicPost(post) {
   const { passwordSalt, passwordHash, comments, detailedDescription, ...summary } = post;
   return { ...summary, commentCount: Array.isArray(comments) ? comments.length : 0 };
 }
+function publicComment(comment) {
+  const { passwordSalt, passwordHash, ...result } = comment;
+  return result;
+}
 function detailedPost(post) {
   const { passwordSalt, passwordHash, ...result } = post;
-  return result;
+  return { ...result, comments: (post.comments || []).map(publicComment) };
 }
 function send(res, status, payload) {
   res.writeHead(status, {
@@ -102,9 +106,9 @@ async function route(req, res) {
     return send(res, 201, { posts: (await getPosts()).map(publicPost) });
   }
 
-  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments))?$/i);
+  const match = pathname.match(/^\/api\/posts\/([0-9a-f-]+)(?:\/(verify|comments)(?:\/([0-9a-f-]+))?)?$/i);
   if (match) {
-    const [, id, action] = match;
+    const [, id, action, commentId] = match;
     const post = await findPost(id);
     if (!post) return fail(res, 404, '게시물을 찾을 수 없어요.');
 
@@ -114,11 +118,30 @@ async function route(req, res) {
       if (!await verifyPassword(String(body.password || ''), post)) return fail(res, 403, '비밀번호가 맞지 않아요.');
       return send(res, 200, { ok: true });
     }
-    if (action === 'comments' && req.method === 'POST') {
+    if (action === 'comments' && req.method === 'POST' && !commentId) {
       if (post.type !== 'lost') return fail(res, 400, '분실 게시물에만 댓글을 남길 수 있어요.');
-      const comment = validateComment(await readBody(req));
-      const created = { id: cryptoRandomId(), ...comment, createdAt: new Date().toISOString() };
-      return send(res, 201, { comments: await appendComment(id, created) });
+      const input = validateComment(await readBody(req));
+      const passwordFields = await hashPassword(input.password);
+      const { password, ...commentFields } = input;
+      const created = { id: cryptoRandomId(), ...commentFields, ...passwordFields, createdAt: new Date().toISOString() };
+      const comments = (await appendComment(id, created)).map(publicComment);
+      return send(res, 201, { comments });
+    }
+    if (action === 'comments' && commentId) {
+      const comment = await findComment(id, commentId);
+      if (!comment) return fail(res, 404, '댓글을 찾을 수 없어요.');
+      const body = await readBody(req);
+      const credentials = validateCommentCredentials(body);
+      const passwordValid = await verifyPassword(credentials.password, comment);
+      if (!passwordValid || credentials.nickname !== comment.nickname) return fail(res, 403, '닉네임 또는 비밀번호가 맞지 않아요.');
+      if (req.method === 'PUT') {
+        const input = validateComment(body);
+        const updated = { ...comment, content: input.content, updatedAt: new Date().toISOString() };
+        return send(res, 200, { comments: (await replaceComment(id, updated)).map(publicComment) });
+      }
+      if (req.method === 'DELETE') {
+        return send(res, 200, { comments: (await removeComment(id, commentId)).map(publicComment) });
+      }
     }
     if (!action && req.method === 'PUT') {
       const body = await readBody(req);

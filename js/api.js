@@ -13,3 +13,6 @@ export const updatePost = (id, post) => request(`/posts/${encodeURIComponent(id)
 export const deletePost = (id, password) => request(`/posts/${encodeURIComponent(id)}`, { method: 'DELETE', body: JSON.stringify({ password }) });
 export const verifyPostPassword = (id, password) => request(`/posts/${encodeURIComponent(id)}/verify`, { method: 'POST', body: JSON.stringify({ password }) });
 export const addComment = (id, comment) => request(`/posts/${encodeURIComponent(id)}/comments`, { method: 'POST', body: JSON.stringify(comment) });
+
+export const updateComment = (postId, commentId, comment) => request(`/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, { method: 'PUT', body: JSON.stringify(comment) });
+export const deleteComment = (postId, commentId, credentials) => request(`/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, { method: 'DELETE', body: JSON.stringify(credentials) });

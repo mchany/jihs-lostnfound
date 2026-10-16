@@ -33,7 +33,7 @@ Pages 프로젝트의 Settings → Functions → Bindings에서 두 바인딩을
 - D1 database: 변수 이름 `DB`, 위에서 만든 데이터베이스 선택
 - R2 bucket: 변수 이름 `IMAGES`, 위에서 만든 버킷 선택
 
-Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추가합니다. 값은 32자 이상의 임의 문자열로 만들고 GitHub에 커밋하거나 공개하지 마세요. 이 키는 게시 비밀번호 해시에 사용됩니다. Production 환경에 리소스와 secret을 연결한 뒤 프로젝트를 다시 배포합니다. 미리 보기 배포에서도 확인하려면 Preview 환경에도 같은 설정을 연결하세요.
+Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추가합니다. 값은 32자 이상의 임의 문자열로 만들고 GitHub에 커밋하거나 공개하지 마세요. 이 키는 게시물과 댓글 비밀번호 해시에 사용됩니다. Production 환경에 리소스와 secret을 연결한 뒤 프로젝트를 다시 배포합니다. 미리 보기 배포에서도 확인하려면 Preview 환경에도 같은 설정을 연결하세요.
 
 이제 Cloudflare가 제공하는 `*.pages.dev` 주소에서 게시물을 등록해 확인합니다. GitHub Pages 주소는 정적 파일만 제공하므로 API는 실행하지 않습니다. Cloudflare 배포 확인 후 Pages 주소를 새 서비스 주소로 바꾸거나, 사용자에게 Cloudflare 주소를 공유하세요.
 
@@ -43,7 +43,7 @@ Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추�
 
 - 분실 게시물은 분실 장소만 입력하고, 습득 게시물은 습득 장소와 보관 장소를 입력합니다.
 - 간단 설명은 목록에 표시하고 상세 설명은 게시물 상세 페이지에서 확인합니다.
-- 분실 게시물에는 다른 사용자가 댓글을 달 수 있습니다.
+- 분실 게시물에는 닉네임과 비밀번호를 설정해 댓글을 달 수 있으며, 댓글 작성자는 닉네임과 비밀번호로 댓글을 수정·삭제할 수 있습니다. 기존 비밀번호 없는 댓글은 새 API가 처음 실행될 때 모두 제거됩니다.
 - 수정·삭제는 게시물 등록 시 설정한 비밀번호로 확인합니다.
 - 다크 모드는 테마 버튼으로 전환합니다.
 

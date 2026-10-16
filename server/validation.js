@@ -32,11 +32,20 @@ export function validatePost(body, { creating = false } = {}) {
   };
 }
 
-export function validateComment(body) {
+export function validateCommentCredentials(body) {
   const nickname = String(body.nickname || '').trim();
-  const content = String(body.content || '').trim();
-  if (!nickname || nickname.length > 20 || !content || content.length > 500) {
-    throw Object.assign(new Error('닉네임과 댓글을 확인해 주세요. 댓글은 500자까지 입력할 수 있어요.'), { status: 400 });
+  const password = String(body.password || '');
+  if (!nickname || nickname.length > 20 || password.length < 4 || password.length > 32) {
+    throw Object.assign(new Error('닉네임과 비밀번호를 확인해 주세요. 비밀번호는 4자 이상 입력해 주세요.'), { status: 400 });
   }
-  return { nickname, content };
+  return { nickname, password };
+}
+
+export function validateComment(body) {
+  const { nickname, password } = validateCommentCredentials(body);
+  const content = String(body.content || '').trim();
+  if (!content || content.length > 500) {
+    throw Object.assign(new Error('댓글을 확인해 주세요. 댓글은 500자까지 입력할 수 있어요.'), { status: 400 });
+  }
+  return { nickname, password, content };
 }
