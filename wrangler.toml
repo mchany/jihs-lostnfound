@@ -1,3 +1,8 @@
-name = "jungil-lost-and-found"
+name = "mchany-github-io"
 compatibility_date = "2026-10-16"
 pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "<D1 데이터베이스 이름>"
+database_id = "<D1 데이터베이스 ID>"
