@@ -119,7 +119,7 @@ async function route(req, res) {
       return send(res, 200, { ok: true });
     }
     if (action === 'resolve' && req.method === 'POST') {
-      if (post.type !== 'lost') return fail(res, 400, '분실 게시물만 찾음 상태로 바꿀 수 있어요.');
+
       const body = await readBody(req);
       if (typeof body.resolved !== 'boolean') return fail(res, 400, '변경할 상태를 확인해 주세요.');
       if (!await verifyPassword(String(body.password || ''), post)) return fail(res, 403, '비밀번호가 맞지 않아요.');
@@ -162,7 +162,7 @@ async function route(req, res) {
         ...post, type: input.type, item: input.item, location: input.location,
         storage: input.storage, simpleDescription: input.simpleDescription,
         detailedDescription: input.detailedDescription, nickname: input.nickname,
-        photo, resolved: input.type === 'lost' && Boolean(post.resolved), updatedAt: new Date().toISOString()
+        photo, resolved: Boolean(post.resolved), updatedAt: new Date().toISOString()
       };
       await replacePost(id, updated);
       if (post.photo && post.photo !== photo) await removePhoto(post.photo);

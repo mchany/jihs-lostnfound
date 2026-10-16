@@ -19,12 +19,10 @@ export function renderBoard(posts, activeBoard, query = '') {
     const storage = post.type === 'found'
       ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
     const comments = `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>`;
-    const isResolved = post.type === 'lost' && Boolean(post.resolved);
+    const isResolved = Boolean(post.resolved);
     const resolvedClass = isResolved ? ' is-resolved' : '';
     const resolvedBanner = isResolved ? '<span class="post-resolved-banner">주인을 찾았어요</span>' : '';
-    const resolveAction = post.type === 'lost'
-      ? `<button type="button" data-action="${isResolved ? 'reopen' : 'resolve'}" data-id="${escapeHTML(post.id)}">${isResolved ? '찾음 취소' : '주인을 찾았어요'}</button>`
-      : '';
+    const resolveAction = `<button type="button" data-action="${isResolved ? 'reopen' : 'resolve'}" data-id="${escapeHTML(post.id)}">${isResolved ? '찾음 취소' : '주인을 찾았어요'}</button>`;
     return `<article class="post-card">
       <a class="post-open" href="${detailUrl}">
         <div class="post-image${resolvedClass}">${photo}${resolvedBanner}<span class="post-type ${post.type}">${boardName(post.type)}</span></div>

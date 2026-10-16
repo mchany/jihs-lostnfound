@@ -179,7 +179,7 @@ async function handle(request, env) {
   }
 
   if (action === 'resolve' && method === 'POST') {
-    if (post.type !== 'lost') return json({ error: '분실 게시물만 찾음 상태로 바꿀 수 있어요.' }, 400);
+
     const body = await readBody(request);
     if (typeof body.resolved !== 'boolean') return json({ error: '변경할 상태를 확인해 주세요.' }, 400);
     if (!await verifyPassword(String(body.password || ''), post, env.PASSWORD_PEPPER)) return json({ error: '비밀번호가 맞지 않아요.' }, 403);
@@ -232,7 +232,7 @@ async function handle(request, env) {
     try {
       await env.DB.prepare(`
         UPDATE posts SET type = ?, item = ?, location = ?, storage = ?, simple_description = ?, detailed_description = ?, nickname = ?, photo = ?, resolved = ?, updated_at = ? WHERE id = ?
-      `).bind(input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, input.type === 'lost' && post.resolved ? 1 : 0, updatedAt, id).run();
+      `).bind(input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, post.resolved ? 1 : 0, updatedAt, id).run();
     } catch (error) {
       if (photo !== post.photo) await deletePhoto(env.IMAGES, photo);
       throw error;
