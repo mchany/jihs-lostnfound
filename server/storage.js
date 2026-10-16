@@ -1,0 +1,81 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DATA_DIR = path.join(ROOT, 'data');
+const UPLOAD_DIR = path.join(ROOT, 'uploads');
+const DB_FILE = path.join(DATA_DIR, 'posts.json');
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MIME_EXTENSIONS = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
+
+fs.mkdirSync(DATA_DIR, { recursive: true });
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]\n', 'utf8');
+
+function readFile() {
+  try {
+    const value = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    return Array.isArray(value) ? value : [];
+  } catch { return []; }
+}
+
+function writeFile(posts) {
+  fs.writeFileSync(DB_FILE, `${JSON.stringify(posts, null, 2)}\n`, 'utf8');
+}
+
+function migratePost(post) {
+  const legacyDescription = String(post.description || '');
+  const migrated = {
+    ...post,
+    simpleDescription: post.simpleDescription ?? legacyDescription.slice(0, 120),
+    detailedDescription: post.detailedDescription ?? legacyDescription,
+    storage: post.type === 'lost' ? '' : String(post.storage || ''),
+    comments: Array.isArray(post.comments) ? post.comments : []
+  };
+  delete migrated.description;
+  return migrated;
+}
+
+let posts = readFile().map(migratePost);
+writeFile(posts);
+
+export function getPosts() { return posts; }
+export function findPost(id) { return posts.find(post => post.id === id); }
+export function insertPost(post) { posts = [post, ...posts]; writeFile(posts); return posts; }
+export function replacePost(id, updatedPost) {
+  posts = posts.map(post => post.id === id ? updatedPost : post);
+  writeFile(posts);
+  return posts;
+}
+export function removePost(id) {
+  const deleted = findPost(id);
+  posts = posts.filter(post => post.id !== id);
+  writeFile(posts);
+  removePhoto(deleted?.photo);
+  return posts;
+}
+export function appendComment(id, comment) {
+  const post = findPost(id);
+  post.comments = [...(post.comments || []), comment];
+  writeFile(posts);
+  return post.comments;
+}
+
+export function savePhoto(dataUrl) {
+  if (!dataUrl) return '';
+  const match = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z\d+/=]+)$/.exec(dataUrl);
+  if (!match) throw Object.assign(new Error('JPG, PNG, WEBP, GIF 사진만 올릴 수 있어요.'), { status: 400 });
+  const bytes = Buffer.from(match[2], 'base64');
+  if (!bytes.length || bytes.length > MAX_IMAGE_BYTES) throw Object.assign(new Error('사진은 5MB 이하만 올릴 수 있어요.'), { status: 400 });
+  const filename = `${crypto.randomUUID()}${MIME_EXTENSIONS[match[1]]}`;
+  fs.writeFileSync(path.join(UPLOAD_DIR, filename), bytes, { flag: 'wx' });
+  return `/uploads/${filename}`;
+}
+
+export function removePhoto(photo) {
+  if (typeof photo !== 'string' || !photo.startsWith('/uploads/')) return;
+  const target = path.join(UPLOAD_DIR, path.basename(photo));
+  if (target.startsWith(`${UPLOAD_DIR}${path.sep}`)) fs.rmSync(target, { force: true });
+}

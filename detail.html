@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f5ef" />
+  <title>게시물 상세 · 중일분실물DB</title>
+  <script>try{if(localStorage.getItem('jungil-theme')==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/components.css" />
+  <link rel="stylesheet" href="/detail.css" />
+  <link rel="stylesheet" href="/theme.css" />
+</head>
+<body>
+  <div class="site-shell detail-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="중일분실물DB 홈"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span class="brand-name">중일<span>분실물DB</span></span></a>
+      <div class="topbar-tools"><a class="back-link" href="/">← 게시판으로</a><button class="theme-toggle" type="button" id="themeToggle" aria-label="다크 모드 켜기" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">다크 모드</span></button></div>
+    </header>
+    <main class="detail-main" id="detailMain" hidden>
+      <p class="eyebrow detail-eyebrow">COMMUNITY BOARD <span>/</span> <span id="detailBoard"></span></p>
+      <div class="detail-layout">
+        <article class="detail-article">
+          <div class="detail-photo" id="detailPhoto"></div>
+          <div class="detail-copy">
+            <div class="detail-title-row"><span class="post-type" id="detailType"></span><time id="detailDate"></time></div>
+            <h1 id="detailItem"></h1>
+            <p class="detail-simple" id="detailSimple"></p>
+            <div class="detail-divider"></div>
+            <div class="detail-facts"><div><span id="detailLocationLabel">분실 장소</span><b id="detailLocation"></b></div><div id="detailStorageWrap"><span>보관 장소</span><b id="detailStorage"></b></div></div>
+            <section class="detail-description"><h2>상세 설명</h2><p id="detailDescription"></p></section>
+            <div class="detail-author"><span class="author-avatar" id="detailAvatar"></span><span id="detailNickname"></span></div>
+          </div>
+        </article>
+        <aside class="comments-panel" id="commentsPanel">
+          <div class="comments-heading"><div><p class="eyebrow">LET'S HELP</p><h2>찾았어요? 알려 주세요.</h2></div><span class="comment-count" id="commentCount">0</span></div>
+          <p class="comments-hint">이 분실물을 보았거나 습득했다면 댓글로 소식을 남겨 주세요.</p>
+          <div class="comment-list" id="commentList"></div>
+          <form class="comment-form" id="commentForm">
+            <label class="field"><span>닉네임</span><input name="nickname" required maxlength="20" placeholder="닉네임"></label>
+            <label class="field"><span>댓글</span><textarea name="content" required maxlength="500" rows="3" placeholder="장소나 보관 중인 곳을 알려 주세요."></textarea></label>
+            <p class="form-error" id="commentError" role="alert"></p>
+            <button class="button button-primary" type="submit">댓글 남기기 <span>↗</span></button>
+          </form>
+        </aside>
+      </div>
+    </main>
+    <section class="detail-not-found" id="detailNotFound" hidden><p class="eyebrow">NO POST FOUND</p><h1>게시물을 찾을 수 없어요.</h1><p>삭제되었거나 주소가 올바르지 않을 수 있어요.</p><a class="button button-primary" href="/">게시판으로 돌아가기</a></section>
+    <footer class="site-footer detail-footer"><a class="brand footer-brand" href="/"><span class="brand-mark"><span></span><span></span><span></span><span></span></span><span class="brand-name">중일<span>분실물DB</span></span></a><span>좋은 마음이 잘 전달될 수 있도록, 서로 배려해 주세요.</span><span class="footer-year">EST. 2025</span></footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/theme.js"></script>
+  <script type="module" src="/js/detail.js"></script>
+</body>
+</html>

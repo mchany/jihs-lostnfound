@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f5ef" />
+  <title>중일분실물DB</title>
+  <script>try{if(localStorage.getItem('jungil-theme')==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/components.css" />
+  <link rel="stylesheet" href="/theme.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="중일분실물DB 홈">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span class="brand-name">중일<span>분실물DB</span></span>
+      </a>
+      <div class="topbar-tools"><div class="topbar-note"><span class="live-dot"></span> 우리 학교 분실물 게시판</div><button class="theme-toggle" type="button" id="themeToggle" aria-label="다크 모드 켜기" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">다크 모드</span></button></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> FIND IT. RETURN IT.</p>
+          <h1>잃어버린 물건,<br><span>함께 찾아요.</span></h1>
+          <p class="hero-desc">분실물과 습득물을 한곳에서 확인하고<br class="mobile-break"> 주인을 찾아 주세요.</p>
+          <button class="button button-primary hero-cta" id="openPost"><span class="plus">＋</span> 게시물 올리기</button>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+          <div class="art-sun"></div>
+          <div class="art-card art-card-back"><div class="art-card-line"></div><div class="art-card-line short"></div><div class="art-card-dot"></div></div>
+          <div class="art-card art-card-front"><div class="art-card-top"><span></span><span></span><span></span></div><div class="art-photo"><div class="art-bag"><i></i></div></div><div class="art-card-line"></div><div class="art-card-line short"></div><div class="art-tag">FOUND <b>↗</b></div></div>
+          <div class="art-spark spark-a">✳</div><div class="art-spark spark-b">✦</div><div class="art-label">GOOD THINGS<br>FIND THEIR WAY</div>
+        </div>
+        <div class="hero-bottom"><span>01 — 02</span><span class="hero-bottom-line"></span><span>중일분실물DB</span></div>
+      </section>
+
+      <section class="board-section" aria-labelledby="boardTitle">
+        <div class="section-heading">
+          <div><p class="eyebrow section-eyebrow">THE COMMUNITY BOARD</p><h2 id="boardTitle">분실물 게시판</h2></div>
+          <p class="section-caption">혹시 본 적 있나요?<br>작은 제보가 큰 도움이 됩니다.</p>
+        </div>
+        <div class="board-toolbar">
+          <div class="tabs" role="tablist" aria-label="게시판 분류">
+            <button class="tab active" data-board="lost" role="tab" aria-selected="true"><span class="tab-icon lost-icon">↗</span> 분실했어요 <span class="tab-count" id="lostCount">0</span></button>
+            <button class="tab" data-board="found" role="tab" aria-selected="false"><span class="tab-icon found-icon">⌕</span> 주웠어요 <span class="tab-count" id="foundCount">0</span></button>
+          </div>
+          <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="물품명, 장소 검색" aria-label="게시물 검색"><kbd>⌘ K</kbd></label>
+        </div>
+        <div class="board-intro"><span id="boardIntroLabel">분실했어요</span><span class="intro-rule"></span><span id="resultCount">0개의 게시물</span></div>
+        <div class="post-grid" id="postGrid"></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-illustration"><span class="empty-ring"></span><span class="empty-handle"></span><span class="empty-star">✦</span></div>
+          <p class="empty-kicker">아직 게시물이 없어요</p>
+          <h3>첫 번째 소식을 남겨 주세요.</h3>
+          <p>분실했거나 주운 물건이 있다면<br>게시판에 올려 함께 찾아봐요.</p>
+          <button class="button button-outline" id="emptyPost">게시물 올리기 <span>↗</span></button>
+        </div>
+        <div class="board-footer"><span>모두가 함께 만드는 중일의 분실물 지도</span><span>작은 관심으로, 다시 만나요 <b>♥</b></span></div>
+      </section>
+    </main>
+    <footer class="site-footer"><a class="brand footer-brand" href="#"><span class="brand-mark"><span></span><span></span><span></span><span></span></span><span class="brand-name">중일<span>분실물DB</span></span></a><span>좋은 마음이 잘 전달될 수 있도록, 서로 배려해 주세요.</span><span class="footer-year">EST. 2025</span></footer>
+  </div>
+
+  <dialog id="postDialog" class="post-dialog">
+    <form id="postForm" class="post-form">
+      <div class="dialog-top"><div><p class="eyebrow">SHARE AN UPDATE</p><h2 id="dialogTitle">게시물 올리기</h2></div><button type="button" class="icon-button" id="closeDialog" aria-label="닫기">×</button></div>
+      <div class="type-picker" role="group" aria-label="게시물 종류">
+        <label class="type-option selected"><input type="radio" name="type" value="lost" checked><span class="type-symbol">↗</span><span><b>분실했어요</b><small>잃어버린 물건을 찾아요</small></span><span class="type-check">✓</span></label>
+        <label class="type-option"><input type="radio" name="type" value="found"><span class="type-symbol found-symbol">⌕</span><span><b>주웠어요</b><small>주인을 기다리는 물건이에요</small></span><span class="type-check">✓</span></label>
+      </div>
+      <div class="form-grid">
+        <label class="field field-full"><span>물품명 <i>*</i></span><input name="item" required maxlength="60" placeholder="예: 검정색 무선 이어폰"></label>
+        <label class="field"><span id="locationLabel">분실 장소 <i>*</i></span><input name="location" required maxlength="80" placeholder="예: 본관 2층 복도"></label>
+        <label class="field storage-field" id="storageField" hidden><span id="storageLabel">보관 장소 <i>*</i></span><input name="storage" maxlength="80" placeholder="예: 행정실 / 직접 보관 중"></label>
+        <label class="field field-full"><span>간단 설명 <i>*</i></span><textarea name="simpleDescription" rows="2" required maxlength="120" placeholder="목록에서 바로 확인할 핵심 특징을 적어 주세요."></textarea><small class="field-hint">목록 카드에 표시돼요. 120자 이내</small></label>
+        <label class="field field-full"><span>상세 설명 <small>(선택)</small></span><textarea name="detailedDescription" rows="4" maxlength="2000" placeholder="색상, 세부 특징, 분실·습득 시간 등 더 자세히 적어 주세요."></textarea></label>
+        <div class="field field-full"><span>사진 <small>(선택)</small></span><label class="upload-box" id="uploadBox"><input id="photoInput" type="file" accept="image/*"><span class="upload-icon">＋</span><span class="upload-copy"><b>사진을 추가해 주세요</b><small>이미지 파일, 최대 5MB</small></span><span class="upload-preview" id="uploadPreview"></span></label><button type="button" id="removePhoto" class="remove-photo">사진 삭제</button></div>
+        <div class="field-divider field-full"><span>게시물 관리 정보</span><span>별도 가입 없이 설정해요</span></div>
+        <label class="field"><span>닉네임 <i>*</i></span><input name="nickname" required maxlength="20" placeholder="게시물에 표시할 이름"></label>
+        <label class="field"><span>비밀번호 <i>*</i></span><input name="password" type="password" required minlength="4" maxlength="32" placeholder="4자 이상 간단한 비밀번호"><small class="field-hint">이 비밀번호로 게시물을 수정·삭제할 수 있어요.</small></label>
+      </div>
+      <p class="form-error" id="formError" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelDialog">취소</button><button type="submit" class="button button-primary" id="submitPost">게시물 등록 <span>↗</span></button></div>
+    </form>
+  </dialog>
+  <dialog id="authDialog" class="post-dialog auth-dialog">
+    <form id="authForm" class="post-form">
+      <div class="dialog-top"><div><p class="eyebrow">POST MANAGEMENT</p><h2 id="authTitle">게시물 확인</h2></div><button type="button" class="icon-button" id="closeAuth" aria-label="닫기">×</button></div>
+      <p class="auth-copy" id="authCopy">게시물을 올릴 때 설정한 비밀번호를 입력해 주세요.</p>
+      <label class="field"><span>비밀번호</span><input name="password" type="password" required minlength="4" maxlength="32" autocomplete="current-password" placeholder="설정한 비밀번호"></label>
+      <p class="form-error" id="authError" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelAuth">취소</button><button type="submit" class="button button-primary" id="authSubmit">확인 <span>↗</span></button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/theme.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+data/posts.json
+uploads/*
+!uploads/.gitkeep
