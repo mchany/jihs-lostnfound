@@ -55,6 +55,11 @@ function toPost(row, comments = []) {
   };
 }
 
+function toPublicDetail(post) {
+  const { passwordSalt, passwordHash, ...publicDetail } = post;
+  return publicDetail;
+}
+
 let commentSchemaMigration;
 async function ensureCommentSchema(db) {
   if (!commentSchemaMigration) {
@@ -170,7 +175,7 @@ async function handle(request, env) {
   const post = await getPost(env.DB, id);
   if (!post) return json({ error: '게시물을 찾을 수 없어요.' }, 404);
 
-  if (!action && method === 'GET') return json({ post });
+  if (!action && method === 'GET') return json({ post: toPublicDetail(post) });
 
   if (action === 'verify' && method === 'POST') {
     const body = await readBody(request);
