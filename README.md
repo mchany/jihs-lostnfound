@@ -1,41 +1,58 @@
 # 중일분실물DB
 
-분실·습득 게시판, 상세 페이지, 댓글을 제공하는 학교 분실물 관리 사이트입니다. Node.js 서버가 웹 화면과 게시물 API를 함께 제공합니다. GitHub Pages 같은 정적 호스팅만으로는 게시물 저장 API를 실행할 수 없습니다.
+분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리하며 D1과 R2에 게시물·댓글·사진을 저장합니다.
 
 ## 로컬 실행
 
-Node.js 18 이상에서 이 폴더에 들어와 실행합니다.
+Node.js 18 이상에서 이 폴더에서 실행합니다.
 
 ```sh
 npm start
 ```
 
-브라우저에서 `http://localhost:3000`을 여세요. Supabase 환경 변수가 없으면 게시물과 사진은 로컬 `data/posts.json` 및 `uploads/`에 저장됩니다.
+브라우저에서 `http://localhost:3000`을 여세요. 로컬 게시물과 사진은 `data/posts.json` 및 `uploads/`에 저장됩니다.
 
-## 무료 배포 구성
+## Cloudflare Pages 배포
 
-배포는 Render의 Node.js 웹 서비스와 Supabase의 PostgreSQL·Storage를 사용합니다. Supabase Free에는 데이터베이스 500 MB와 파일 1 GB가 포함되지만, 1주일 동안 활동이 없으면 프로젝트가 일시 중지될 수 있습니다. Render Free 웹 서비스는 15분 동안 요청이 없으면 잠들고, 깨어나는 데 약 1분이 걸릴 수 있습니다. [Supabase 요금 및 한도](https://supabase.com/pricing) · [Render Free 제한](https://render.com/docs/free)
+### 1. Pages 프로젝트 만들기
 
-1. Supabase에서 프로젝트를 만들고 SQL Editor에서 [`supabase/schema.sql`](supabase/schema.sql)을 실행합니다.
-2. Supabase Storage에서 `lost-found-images`라는 **public bucket**을 만듭니다. 최대 파일 크기는 5 MB, 허용 MIME 형식은 JPEG, PNG, WEBP, GIF로 설정합니다. 사진은 게시물에 표시되므로 공개 URL로 제공됩니다.
-3. Supabase의 Project URL과 서버 전용 Secret API key를 준비합니다. 새 Secret key(`sb_secret_...`) 또는 기존 `service_role` key를 쓸 수 있습니다. 키는 프런트엔드 코드나 GitHub 파일에 넣지 마세요.
-4. GitHub 저장소를 Render에 연결해 Blueprint를 생성합니다. 이 저장소의 [`render.yaml`](render.yaml)이 무료 웹 서비스를 설정합니다. Blueprint가 요청하면 `SUPABASE_URL`과 `SUPABASE_SECRET_KEY`를 입력하고 배포합니다. Storage bucket 이름은 기본값 `lost-found-images`를 사용합니다.
-5. 배포된 Render 주소를 열어 게시판과 API가 응답하는지 확인합니다. 이후 같은 저장소의 커밋을 Render가 자동 배포합니다.
+Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 `mchany/mchany.github.io` 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
 
-서비스 키는 서버에서만 읽으며 Supabase 요청의 서버 전용 헤더로 사용합니다. 두 테이블은 RLS를 켜고 브라우저에서 직접 읽거나 쓰는 정책을 두지 않았습니다. 로컬 파일 저장은 개발용 fallback이고, 배포 시 두 Supabase 환경 변수를 모두 설정해야 클라우드 DB와 Storage를 사용합니다.
+### 2. D1 데이터베이스 만들기
+
+Workers & Pages → D1 SQL Database에서 `jungil-lost-and-found` 데이터베이스를 만듭니다. D1 콘솔에서 [`cloudflare/schema.sql`](cloudflare/schema.sql)을 실행합니다.
+
+### 3. R2 버킷 만들기
+
+R2 Object Storage에서 `jungil-lost-and-found-images` 버킷을 만듭니다. 사진은 R2에 비공개로 저장되고 Pages Function이 `/uploads/...` 경로로 전달하므로 공개 버킷이나 공개 도메인이 필요하지 않습니다.
+
+### 4. Pages Function에 리소스와 secret 연결
+
+Pages 프로젝트의 Settings → Functions → Bindings에서 두 바인딩을 추가합니다.
+
+- D1 database: 변수 이름 `DB`, 위에서 만든 데이터베이스 선택
+- R2 bucket: 변수 이름 `IMAGES`, 위에서 만든 버킷 선택
+
+Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추가합니다. 값은 32자 이상의 임의 문자열로 만들고 GitHub에 커밋하거나 공개하지 마세요. 이 키는 게시 비밀번호 해시에 사용됩니다. Production 환경에 리소스와 secret을 연결한 뒤 프로젝트를 다시 배포합니다. 미리 보기 배포에서도 확인하려면 Preview 환경에도 같은 설정을 연결하세요.
+
+이제 Cloudflare가 제공하는 `*.pages.dev` 주소에서 게시물을 등록해 확인합니다. GitHub Pages 주소는 정적 파일만 제공하므로 API는 실행하지 않습니다. Cloudflare 배포 확인 후 Pages 주소를 새 서비스 주소로 바꾸거나, 사용자에게 Cloudflare 주소를 공유하세요.
+
+무료 사용량에는 한도가 있습니다. 현재 Cloudflare Workers 무료 플랜은 하루 100,000회 요청, D1 무료 한도는 총 5 GB·하루 500만 행 읽기와 10만 행 쓰기, R2 Standard 무료 한도는 월 평균 10 GB 저장 및 월 100만 Class A·1,000만 Class B 작업입니다. [Workers 한도](https://developers.cloudflare.com/workers/platform/pricing/) · [D1 한도](https://developers.cloudflare.com/d1/platform/pricing/) · [R2 무료 한도](https://developers.cloudflare.com/r2/pricing/)
 
 ## 사용
 
 - 분실 게시물은 분실 장소만 입력하고, 습득 게시물은 습득 장소와 보관 장소를 입력합니다.
 - 간단 설명은 목록에 표시하고 상세 설명은 게시물 상세 페이지에서 확인합니다.
 - 분실 게시물에는 다른 사용자가 댓글을 달 수 있습니다.
-- 게시물 수정·삭제는 등록할 때 설정한 닉네임과 비밀번호로 확인합니다.
+- 수정·삭제는 게시물 등록 시 설정한 비밀번호로 확인합니다.
 - 다크 모드는 테마 버튼으로 전환합니다.
 
 ## 코드 구성
 
-- `js/`: 게시판 UI, API 호출, 폼, 인증 창, 상세 페이지, 테마
-- `server/`: 입력 검증, 비밀번호 처리, 로컬 및 Supabase 저장 모듈
-- `server.js`: 웹 서버와 API 경로
-- `supabase/schema.sql`: 게시물·댓글 테이블과 RLS 설정
-- `render.yaml`: Render Blueprint 배포 설정
+- `js/`: 브라우저 UI와 API 호출 모듈
+- `server/`: 로컬 Node 서버의 저장, 입력 검증, 비밀번호 모듈
+- `functions/api/`: Cloudflare Pages 게시물 API
+- `functions/uploads/`: R2 사진 조회 API
+- `cloudflare/schema.sql`: D1 테이블 구성
+- `server.js`: 로컬 개발 서버
+- `wrangler.toml`: Cloudflare Pages 설정

@@ -6,5 +6,8 @@ node_modules/
 data/posts.json
 uploads/*
 !uploads/.gitkeep
+.dev.vars
+.dev.vars.*
+.wrangler/
 .DS_Store
 Thumbs.db
