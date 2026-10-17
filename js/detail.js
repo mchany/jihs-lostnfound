@@ -110,8 +110,9 @@ function renderPost(post) {
 $('#commentForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (!currentPost) return;
+  const form = event.currentTarget;
   $('#commentError').textContent = '';
-  const data = new FormData(event.currentTarget);
+  const data = new FormData(form);
   const comment = {
     nickname: String(data.get('nickname') || '').trim(),
     content: String(data.get('content') || '').trim(),
@@ -121,7 +122,7 @@ $('#commentForm').addEventListener('submit', async event => {
     const result = await addComment(currentPost.id, comment);
     currentPost.comments = result.comments;
     renderComments(currentPost.comments);
-    event.currentTarget.reset();
+    form.reset();
     showToast('댓글을 남겼어요.');
   } catch (error) { $('#commentError').textContent = error.message; }
 });
