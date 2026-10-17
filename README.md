@@ -37,14 +37,14 @@ Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추�
 
 이제 Cloudflare가 제공하는 `*.pages.dev` 주소에서 게시물을 등록해 확인합니다. GitHub Pages 주소는 정적 파일만 제공하므로 API는 실행하지 않습니다. Cloudflare 배포 확인 후 Pages 주소를 새 서비스 주소로 바꾸거나, 사용자에게 Cloudflare 주소를 공유하세요.
 
-무료 사용량에는 한도가 있습니다. 현재 Cloudflare Workers 무료 플랜은 하루 100,000회 요청, D1 무료 한도는 총 5 GB·하루 500만 행 읽기와 10만 행 쓰기, R2 Standard 무료 한도는 월 평균 10 GB 저장 및 월 100만 Class A·1,000만 Class B 작업입니다. [Workers 한도](https://developers.cloudflare.com/workers/platform/pricing/) · [D1 한도](https://developers.cloudflare.com/d1/platform/pricing/) · [R2 무료 한도](https://developers.cloudflare.com/r2/pricing/)
-
 ## 사용
 
 - 분실 게시물은 분실 장소만 입력하고, 습득 게시물은 습득 장소와 보관 장소를 입력합니다.
+- 게시물 게시 전 Cloudflare Turnstile를 완료/통과해야 게시가 가능합니다.
 - 간단 설명은 목록에 표시하고 상세 설명은 게시물 상세 페이지에서 확인합니다.
 - 분실 게시물에는 닉네임과 비밀번호를 설정해 댓글을 달 수 있으며, 댓글 작성자는 닉네임과 비밀번호로 댓글을 수정·삭제할 수 있습니다. 기존 비밀번호 없는 댓글은 새 API가 처음 실행될 때 모두 제거됩니다.
-- 수정·삭제는 게시물 등록 시 설정한 비밀번호로 확인합니다.
+- 수정, 삭제, '주인을 찾았어요'는 게시물 등록 시 설정한 비밀번호로 확인합니다.
+- '주인을 찾았어요' 처리 후 한달이 지난 게시물은 자동 삭제됩니다.
 - 다크 모드는 테마 버튼으로 전환합니다.
 
 ## 코드 구성
