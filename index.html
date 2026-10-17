@@ -87,7 +87,12 @@
         <label class="field"><span>비밀번호 <i>*</i></span><input name="password" type="password" required minlength="4" maxlength="32" placeholder="4자 이상 간단한 비밀번호"><small class="field-hint">이 비밀번호로 게시물을 수정·삭제할 수 있어요.</small></label>
       </div>
       <p class="form-error" id="formError" role="alert"></p>
-      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelDialog">취소</button><button type="submit" class="button button-primary" id="submitPost">게시물 등록 <span>↗</span></button></div>
+      <div class="turnstile-field" id="turnstileField">
+        <p class="turnstile-status" id="turnstileStatus" role="status" aria-live="polite">게시 전에 자동 등록 방지 인증을 완료해 주세요.</p>
+        <button type="button" class="turnstile-retry" id="turnstileRetry" hidden>인증 다시 시도</button>
+        <div class="turnstile-widget" id="turnstileWidget"></div>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelDialog">취소</button><button type="submit" class="button button-primary" id="submitPost" disabled>게시물 등록 <span>↗</span></button></div>
     </form>
   </dialog>
   <dialog id="authDialog" class="post-dialog auth-dialog">

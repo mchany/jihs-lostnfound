@@ -32,6 +32,42 @@ function send(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 function fail(res, status, error) { send(res, status, { error }); }
+
+const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const TURNSTILE_ACTION = 'post_create';
+const MAX_TURNSTILE_TOKEN_LENGTH = 2048;
+
+async function verifyTurnstile(req, token) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (typeof secret !== 'string' || !secret || typeof token !== 'string' || token.length === 0 || token.length > MAX_TURNSTILE_TOKEN_LENGTH) return false;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const body = {
+      secret,
+      response: token,
+      idempotency_key: crypto.randomUUID()
+    };
+    const remoteIp = req.headers['cf-connecting-ip'];
+    if (typeof remoteIp === 'string' && remoteIp) body.remoteip = remoteIp;
+    const response = await fetch(TURNSTILE_SITEVERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+    if (!response.ok) return false;
+    const result = await response.json();
+    const hostname = new URL(req.url, 'http://' + (req.headers.host || 'localhost')).hostname;
+    return result?.success === true
+      && result.action === TURNSTILE_ACTION
+      && result.hostname === hostname;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -86,11 +122,21 @@ async function route(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 
+  if (pathname === '/api/config' && req.method === 'GET') {
+    return send(res, 200, {
+      turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || '',
+      turnstileEnabled: Boolean(process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY)
+    });
+  }
   if (pathname === '/api/posts' && req.method === 'GET') {
     return send(res, 200, { posts: (await getPosts()).map(publicPost) });
   }
   if (pathname === '/api/posts' && req.method === 'POST') {
-    const input = validatePost(await readBody(req), { creating: true });
+    const body = await readBody(req);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return fail(res, 400, '게시물 정보를 확인해 주세요.');
+    const { turnstileToken, ...postBody } = body;
+    const input = validatePost(postBody, { creating: true });
+    if (!await verifyTurnstile(req, turnstileToken)) return fail(res, 403, '자동 등록 확인에 실패했어요. 다시 인증해 주세요.');
     const passwordFields = await hashPassword(input.password);
     const now = new Date().toISOString();
     let photo = '';

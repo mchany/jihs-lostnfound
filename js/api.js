@@ -6,6 +6,7 @@ async function request(path, options = {}) {
   return payload;
 }
 
+export const getPublicConfig = () => request('/config');
 export const listPosts = () => request('/posts');
 export const getPost = id => request(`/posts/${encodeURIComponent(id)}`);
 export const createPost = post => request('/posts', { method: 'POST', body: JSON.stringify(post) });

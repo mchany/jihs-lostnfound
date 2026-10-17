@@ -1,9 +1,157 @@
 import { $, $$ } from './dom.js';
+import { getPublicConfig } from './api.js';
 
 const dialog = $('#postDialog');
 const form = $('#postForm');
 let editingId = null;
 let photo = '';
+let turnstileSiteKey = '';
+let turnstileEnabled = false;
+let turnstileWidgetId = null;
+let turnstileApiPromise = null;
+let configPromise = null;
+let initializationPromise = null;
+let turnstileToken = '';
+let isSubmitting = false;
+
+function setTurnstileStatus(message) {
+  $('#turnstileStatus').textContent = message;
+}
+
+function updateSubmitState() {
+  $('#submitPost').disabled = isSubmitting || (!editingId && (!turnstileEnabled || !turnstileToken));
+  $('#closeDialog').disabled = isSubmitting;
+  $('#cancelDialog').disabled = isSubmitting;
+}
+
+function removeTurnstileWidget() {
+  if (turnstileWidgetId !== null && window.turnstile) {
+    try { window.turnstile.remove(turnstileWidgetId); } catch {}
+  }
+  turnstileWidgetId = null;
+  $('#turnstileWidget').replaceChildren();
+  turnstileToken = '';
+}
+
+async function loadPublicConfig(force = false) {
+  if (force || !configPromise) {
+    configPromise = getPublicConfig().then(config => {
+      turnstileSiteKey = typeof config.turnstileSiteKey === 'string' ? config.turnstileSiteKey : '';
+      turnstileEnabled = Boolean(config.turnstileEnabled);
+      return config;
+    }).catch(error => {
+      configPromise = null;
+      throw error;
+    });
+  }
+  return configPromise;
+}
+
+function loadTurnstileAPI(force = false) {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (turnstileApiPromise && !force) return turnstileApiPromise;
+
+  document.querySelector('script[data-turnstile-api]')?.remove();
+  const script = document.createElement('script');
+  script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  script.async = true;
+  script.defer = true;
+  script.dataset.turnstileApi = 'true';
+
+  turnstileApiPromise = new Promise((resolve, reject) => {
+    const timeout = window.setTimeout(() => {
+      script.remove();
+      reject(new Error('Turnstile loading timed out'));
+    }, 12000);
+    script.addEventListener('load', () => {
+      window.clearTimeout(timeout);
+      if (window.turnstile) resolve(window.turnstile);
+      else reject(new Error('Turnstile API unavailable'));
+    }, { once: true });
+    script.addEventListener('error', () => {
+      window.clearTimeout(timeout);
+      script.remove();
+      reject(new Error('Turnstile loading failed'));
+    }, { once: true });
+    document.head.append(script);
+  }).catch(error => {
+    turnstileApiPromise = null;
+    throw error;
+  });
+
+  return turnstileApiPromise;
+}
+
+function showTurnstileFailure(message) {
+  turnstileToken = '';
+  setTurnstileStatus(message);
+  $('#turnstileRetry').hidden = false;
+  updateSubmitState();
+}
+
+async function initializeTurnstile(force = false) {
+  if (editingId) return;
+  if (initializationPromise) return initializationPromise;
+
+  initializationPromise = (async () => {
+    turnstileToken = '';
+    $('#turnstileRetry').hidden = true;
+    setTurnstileStatus('인증을 불러오고 있어요.');
+    updateSubmitState();
+
+    try {
+      const config = await loadPublicConfig(force);
+      if (!config.turnstileSiteKey) throw new Error('Turnstile site key is not configured');
+
+      const turnstile = await loadTurnstileAPI(force);
+      removeTurnstileWidget();
+      const size = window.matchMedia('(max-width: 420px)').matches ? 'compact' : 'flexible';
+      turnstileWidgetId = turnstile.render('#turnstileWidget', {
+        sitekey: turnstileSiteKey,
+        action: 'post_create',
+        size,
+        theme: 'auto',
+        retry: 'auto',
+        'refresh-expired': 'manual',
+        'refresh-timeout': 'manual',
+        callback(token) {
+          turnstileToken = token;
+          if (turnstileEnabled) {
+            setTurnstileStatus('인증이 완료됐어요. 게시할 수 있어요.');
+            $('#turnstileRetry').hidden = true;
+          } else {
+            showTurnstileFailure('인증 서버 설정이 끝나야 게시할 수 있어요. 설정 후 다시 시도해 주세요.');
+          }
+          updateSubmitState();
+        },
+        'error-callback'() {
+          showTurnstileFailure('인증 중 문제가 생겼어요. 다시 시도해 주세요.');
+        },
+        'expired-callback'() {
+          showTurnstileFailure('인증이 만료됐어요. 다시 인증해 주세요.');
+        },
+        'timeout-callback'() {
+          showTurnstileFailure('인증 시간이 초과됐어요. 다시 인증해 주세요.');
+        }
+      });
+
+      if (turnstileEnabled) {
+        setTurnstileStatus('게시 전에 인증을 완료해 주세요.');
+        $('#turnstileRetry').hidden = true;
+      } else {
+        showTurnstileFailure('인증 서버 설정이 끝나야 게시할 수 있어요. 설정 후 다시 시도해 주세요.');
+      }
+      updateSubmitState();
+    } catch {
+      removeTurnstileWidget();
+      showTurnstileFailure('인증을 불러오지 못했어요. 다시 시도해 주세요.');
+    }
+  })().finally(() => {
+    initializationPromise = null;
+  });
+
+  return initializationPromise;
+}
 
 function setType(type) {
   $$('input[name="type"]').forEach(input => input.closest('.type-option').classList.toggle('selected', input.value === type));
@@ -32,17 +180,27 @@ function resetForm() {
   $('input[name="password"]').required = true;
   $('input[name="password"]').readOnly = false;
   $('input[name="type"][value="lost"]').checked = true;
+  $('#turnstileField').hidden = false;
+  $('#turnstileRetry').hidden = true;
+  setTurnstileStatus('게시 전에 자동 등록 방지 인증을 완료해 주세요.');
+  turnstileToken = '';
+  if (turnstileWidgetId !== null && window.turnstile) {
+    try { window.turnstile.reset(turnstileWidgetId); } catch {}
+  }
   setType('lost');
+  updateSubmitState();
 }
 
 export function openPostForm() {
   resetForm();
   dialog.showModal();
+  void initializeTurnstile();
 }
 
 export function openPostEditor(post, password) {
   resetForm();
   editingId = post.id;
+  $('#turnstileField').hidden = true;
   $('input[name="type"][value="' + post.type + '"]').checked = true;
   setType(post.type);
   $('input[name="item"]').value = post.item;
@@ -61,6 +219,7 @@ export function openPostEditor(post, password) {
   }
   $('#dialogTitle').textContent = '게시물 수정';
   $('#submitPost').innerHTML = '수정 완료 <span>↗</span>';
+  updateSubmitState();
   dialog.showModal();
 }
 
@@ -72,7 +231,9 @@ export function initPostForm(onSubmit) {
   $('#emptyPost').addEventListener('click', openPostForm);
   $('#closeDialog').addEventListener('click', () => dialog.close());
   $('#cancelDialog').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  $('#turnstileRetry').addEventListener('click', () => void initializeTurnstile(true));
+  dialog.addEventListener('click', event => { if (event.target === dialog && !isSubmitting) dialog.close(); });
+  dialog.addEventListener('cancel', event => { if (isSubmitting) event.preventDefault(); });
   dialog.addEventListener('close', resetForm);
   $$('input[name="type"]').forEach(input => input.addEventListener('change', () => setType(input.value)));
 
@@ -95,16 +256,47 @@ export function initPostForm(onSubmit) {
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (isSubmitting) return;
     setFormError('');
+
     const data = new FormData(form);
     const password = String(data.get('password') || '');
     if (password.length < 4 || password.length > 32) { setFormError('비밀번호는 4자 이상, 32자 이하로 입력해 주세요.'); return; }
+
+    const isCreating = !editingId;
+    let token = '';
+    if (isCreating) {
+      try { token = turnstileWidgetId !== null && window.turnstile ? window.turnstile.getResponse(turnstileWidgetId) : ''; }
+      catch { token = ''; }
+      if (!turnstileEnabled || !token || !turnstileToken) {
+        setFormError('게시하기 전에 인증을 완료해 주세요. 인증을 다시 시도할 수 있어요.');
+        updateSubmitState();
+        return;
+      }
+    }
+
     const payload = {
       type: data.get('type'), item: String(data.get('item')).trim(), location: String(data.get('location')).trim(),
       storage: String(data.get('storage') || '').trim(), simpleDescription: String(data.get('simpleDescription') || '').trim(),
       detailedDescription: String(data.get('detailedDescription') || '').trim(), nickname: String(data.get('nickname')).trim(), password, photo
     };
+    if (isCreating) payload.turnstileToken = token;
+
+    isSubmitting = true;
+    updateSubmitState();
     try { await onSubmit(payload, editingId); }
-    catch (error) { setFormError(error.message); }
+    catch (error) {
+      setFormError(error.message);
+      if (isCreating) {
+        turnstileToken = '';
+        if (turnstileWidgetId !== null && window.turnstile) {
+          try { window.turnstile.reset(turnstileWidgetId); } catch {}
+        }
+        setTurnstileStatus('등록 요청이 끝났어요. 다시 게시하려면 새 인증을 완료해 주세요.');
+      }
+    } finally {
+      isSubmitting = false;
+      updateSubmitState();
+    }
   });
 }

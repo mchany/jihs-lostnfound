@@ -17,6 +17,40 @@ function fail(message, status = 400) {
   return Object.assign(new Error(message), { status });
 }
 
+const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const TURNSTILE_ACTION = 'post_create';
+const MAX_TURNSTILE_TOKEN_LENGTH = 2048;
+
+async function verifyTurnstile(request, token, secret) {
+  if (typeof secret !== 'string' || !secret || typeof token !== 'string' || token.length === 0 || token.length > MAX_TURNSTILE_TOKEN_LENGTH) return false;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const body = {
+      secret,
+      response: token,
+      idempotency_key: crypto.randomUUID()
+    };
+    const remoteIp = request.headers.get('CF-Connecting-IP');
+    if (remoteIp) body.remoteip = remoteIp;
+    const response = await fetch(TURNSTILE_SITEVERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+    if (!response.ok) return false;
+    const result = await response.json();
+    return result?.success === true
+      && result.action === TURNSTILE_ACTION
+      && result.hostname === new URL(request.url).hostname;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function readBody(request) {
   const declaredLength = Number(request.headers.get('content-length') || 0);
   if (declaredLength > 8 * 1024 * 1024) throw fail('요청 용량이 너무 커요.', 413);
@@ -144,15 +178,34 @@ async function deletePhoto(bucket, photo) {
 }
 
 async function handle(request, env) {
-  if (!env.DB || !env.IMAGES) throw new Error('Cloudflare D1(DB)와 R2(IMAGES) 바인딩을 설정해 주세요.');
-  await ensureCommentSchema(env.DB);
   const { pathname } = new URL(request.url);
   const method = request.method;
+
+  if (pathname === '/api/config' && method === 'GET') {
+    return json({
+      turnstileSiteKey: env.TURNSTILE_SITE_KEY || '',
+      turnstileEnabled: Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY)
+    });
+  }
+
+  let createInput = null;
+  if (pathname === '/api/posts' && method === 'POST') {
+    const body = await readBody(request);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw fail('게시물 정보를 확인해 주세요.');
+    const { turnstileToken, ...postBody } = body;
+    createInput = validatePost(postBody, { creating: true });
+    if (!await verifyTurnstile(request, turnstileToken, env.TURNSTILE_SECRET_KEY)) {
+      return json({ error: '자동 등록 확인에 실패했어요. 다시 인증해 주세요.' }, 403);
+    }
+  }
+
+  if (!env.DB || !env.IMAGES) throw new Error('Cloudflare D1(DB)와 R2(IMAGES) 바인딩을 설정해 주세요.');
+  await ensureCommentSchema(env.DB);
 
   if (pathname === '/api/posts' && method === 'GET') return json({ posts: await listPosts(env.DB) });
 
   if (pathname === '/api/posts' && method === 'POST') {
-    const input = validatePost(await readBody(request), { creating: true });
+    const input = createInput;
     const passwordFields = await hashPassword(input.password, env.PASSWORD_PEPPER);
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
