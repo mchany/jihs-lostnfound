@@ -1,5 +1,6 @@
 import { validateComment, validateCommentCredentials, validatePost } from '../../server/validation.js';
 import { hashPassword, verifyPassword } from '../_shared/security.js';
+import { ensureResolvedCleanupSchema } from '../_shared/resolved-cleanup.js';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Map([['image/jpeg', 'jpg'], ['image/png', 'png'], ['image/webp', 'webp'], ['image/gif', 'gif']]);
@@ -126,6 +127,7 @@ async function ensureCommentSchema(db) {
       }
       const legacy = await db.prepare("SELECT COUNT(*) AS count FROM post_comments WHERE password_salt = '' OR password_hash = ''").first();
       if (Number(legacy?.count || 0) > 0) await db.prepare('DELETE FROM post_comments').run();
+      await ensureResolvedCleanupSchema(db);
     })().catch(error => {
       commentSchemaMigration = null;
       throw error;
@@ -241,8 +243,13 @@ async function handle(request, env) {
     const body = await readBody(request);
     if (typeof body.resolved !== 'boolean') return json({ error: '변경할 상태를 확인해 주세요.' }, 400);
     if (!await verifyPassword(String(body.password || ''), post, env.PASSWORD_PEPPER)) return json({ error: '비밀번호가 맞지 않아요.' }, 403);
-    await env.DB.prepare('UPDATE posts SET resolved = ?, updated_at = ? WHERE id = ?')
-      .bind(body.resolved ? 1 : 0, new Date().toISOString(), id).run();
+    const resolvedAt = new Date().toISOString();
+    await env.DB.prepare(`UPDATE posts
+      SET resolved = ?,
+          resolved_at = CASE WHEN ? = 1 THEN COALESCE(resolved_at, ?) ELSE NULL END,
+          updated_at = ?
+      WHERE id = ?`)
+      .bind(body.resolved ? 1 : 0, body.resolved ? 1 : 0, resolvedAt, resolvedAt, id).run();
     return json({ posts: await listPosts(env.DB) });
   }
 
