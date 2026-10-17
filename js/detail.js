@@ -92,7 +92,6 @@ function renderPost(post) {
   $('#detailAvatar').textContent = (post.nickname || '?').slice(0, 1);
   $('#detailNickname').textContent = post.nickname;
   const isResolved = Boolean(post.resolved);
-  const resolvedClass = isResolved ? ' is-resolved' : '';
   const resolvedBanner = isResolved ? '<span class="post-resolved-banner">주인을 찾았어요</span>' : '';
   const detailPhoto = $('#detailPhoto');
   detailPhoto.classList.toggle('is-resolved', isResolved);
