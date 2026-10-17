@@ -91,9 +91,14 @@ function renderPost(post) {
   $('#detailDescription').textContent = post.detailedDescription || '추가 상세 설명이 없습니다.';
   $('#detailAvatar').textContent = (post.nickname || '?').slice(0, 1);
   $('#detailNickname').textContent = post.nickname;
-  $('#detailPhoto').innerHTML = post.photo
+  const isResolved = Boolean(post.resolved);
+  const resolvedClass = isResolved ? ' is-resolved' : '';
+  const resolvedBanner = isResolved ? '<span class="post-resolved-banner">주인을 찾았어요</span>' : '';
+  const detailPhoto = $('#detailPhoto');
+  detailPhoto.classList.toggle('is-resolved', isResolved);
+  detailPhoto.innerHTML = (post.photo
     ? `<img src="${escapeHTML(post.photo)}" alt="${escapeHTML(post.item)} 사진">`
-    : '<span class="placeholder-icon">⌕</span>';
+    : '<span class="placeholder-icon">⌕</span>') + resolvedBanner;
 
   const commentsPanel = $('#commentsPanel');
   commentsPanel.hidden = false;
