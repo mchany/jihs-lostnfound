@@ -56,3 +56,19 @@ Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추�
 - `cloudflare/schema.sql`: D1 테이블 구성
 - `server.js`: 로컬 개발 서버
 - `wrangler.toml`: Cloudflare Pages 설정
+
+## 이미지 및 로고 이용 안내
+
+이 저장소의 소스 코드는 별도 표시가 없는 한 MIT License를 따릅니다. MIT License는 이미지와 로고에는 적용되지 않습니다.
+
+`school-emblem.png`, `school-emblem-dark.png`, `thumbnail.png` 등 저장소에 포함된 로고와 이미지는 각 저작권자 또는 권리자에게 권리가 있습니다. 저장소에 포함되어 있다는 사실만으로 해당 자료의 복제, 수정, 재배포 또는 상업적 이용을 허가하는 것은 아닙니다.
+
+이 자료를 이용하려면 해당 권리자로부터 허가를 받거나, 자료별로 명시된 별도 라이선스를 확인해 주세요. 권리 및 이용 허가 여부가 확인되지 않은 자료는 허가 없이 재사용하지 마세요.
+
+## 이미지 및 로고 출처
+
+| 파일 | 출처 | 권리자 | 이용 조건 |
+|---|---|---|---|
+| `school-emblem.png` | 중일고등학교 / https://jungilhs.djsch.kr | 확인 필요 | 허가 여부 확인 전 재사용 금지 |
+| `school-emblem-dark.png` | `school-emblem.png`의 다크 모드용 변형 | 원본과 동일 | 원본과 동일 |
+| `thumbnail.png` | 'school-emblem.png' 이용 직접 제작 | 원본과 동일 | 원본과 동일 |
