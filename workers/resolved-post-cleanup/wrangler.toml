@@ -1,0 +1,16 @@
+name = "jihs-lostnfound-resolved-cleanup"
+main = "index.js"
+compatibility_date = "2026-10-16"
+workers_dev = false
+
+[triggers]
+crons = ["0 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jungil-lost-and-found"
+database_id = "eb818f90-3064-4032-ab45-d73d87849120"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "jungil-lost-and-found-images"
