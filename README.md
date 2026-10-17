@@ -69,6 +69,6 @@ Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추�
 
 | 파일 | 출처 | 권리자 | 이용 조건 |
 |---|---|---|---|
-| `school-emblem.png` | 중일고등학교 / https://jungilhs.djsch.kr | Copyrightⓒ 중일고등학교. All rights reserved. | 허가 여부 확인 전 재사용 금지 |
+| `school-emblem.png` | [중일고등학교](https://jungilhs.djsch.kr) | [Copyrightⓒ 중일고등학교. All rights reserved.](https://jungilhs.djsch.kr) | 허가 여부 확인 전 재사용 금지 |
 | `school-emblem-dark.png` | `school-emblem.png`의 다크 모드용 변형 | 원본과 동일 | 원본과 동일 |
 | `thumbnail.png` | `school-emblem.png` 이용 직접 제작 | 원본과 동일 | 원본과 동일 |
