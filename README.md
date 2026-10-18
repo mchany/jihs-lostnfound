@@ -19,7 +19,7 @@ npm start
 
 ### 1. Pages 프로젝트 만들기
 
-Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 `mchany/mchany.github.io` 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
+Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 `mchany/jihs-lostnfound` 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
 
 ### 2. D1 데이터베이스 만들기
 
