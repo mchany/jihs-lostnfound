@@ -28,14 +28,15 @@
 
 ## 설정 값
 
-Cloudflare Pages 배포에는 아래 바인딩과 시크릿이 필요합니다. 시크릿 값은 저장소에 커밋하지 않습니다.
+Cloudflare Pages 배포에는 아래 바인딩과 환경 변수가 필요합니다. 시크릿 값은 저장소에 커밋하지 않습니다.
 
 | 이름 | 종류 | 용도 |
 | --- | --- | --- |
 | `DB` | D1 바인딩 | 게시물·댓글 저장 |
 | `IMAGES` | R2 바인딩 | 사진 저장 |
 | `PASSWORD_PEPPER` | 시크릿 | 비밀번호 해시 |
-| `TURNSTILE_SECRET` | 시크릿 | 게시 시 봇 검증 |
+| `TURNSTILE_SECRET_KEY` | 시크릿 | 게시 시 봇 검증 |
+| `TURNSTILE_SITE_KEY` | 시크릿 | Turnstile 위젯 표시 |
 
 ## 이미지 및 로고 이용 안내
 
