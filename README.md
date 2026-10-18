@@ -5,41 +5,6 @@
 
 분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리하며 D1과 R2에 게시물·댓글·사진을 저장합니다.
 
-## 로컬 실행
-
-Node.js 18 이상에서 이 폴더에서 실행합니다.
-
-```sh
-npm start
-```
-
-브라우저에서 `http://localhost:3000`을 여세요. 로컬 게시물과 사진은 `data/posts.json` 및 `uploads/`에 저장됩니다.
-
-## Cloudflare Pages 배포
-
-### 1. Pages 프로젝트 만들기
-
-Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 `mchany/jihs-lostnfound` 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
-
-### 2. D1 데이터베이스 만들기
-
-Workers & Pages → D1 SQL Database에서 `jungil-lost-and-found` 데이터베이스를 만듭니다. D1 콘솔에서 [`cloudflare/schema.sql`](cloudflare/schema.sql)을 실행합니다.
-
-### 3. R2 버킷 만들기
-
-R2 Object Storage에서 `jungil-lost-and-found-images` 버킷을 만듭니다. 사진은 R2에 비공개로 저장되고 Pages Function이 `/uploads/...` 경로로 전달하므로 공개 버킷이나 공개 도메인이 필요하지 않습니다.
-
-### 4. Pages Function에 리소스와 secret 연결
-
-Pages 프로젝트의 Settings → Functions → Bindings에서 두 바인딩을 추가합니다.
-
-- D1 database: 변수 이름 `DB`, 위에서 만든 데이터베이스 선택
-- R2 bucket: 변수 이름 `IMAGES`, 위에서 만든 버킷 선택
-
-Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추가합니다. 값은 32자 이상의 임의 문자열로 만들고 GitHub에 커밋하거나 공개하지 마세요. 이 키는 게시물과 댓글 비밀번호 해시에 사용됩니다. Production 환경에 리소스와 secret을 연결한 뒤 프로젝트를 다시 배포합니다. 미리 보기 배포에서도 확인하려면 Preview 환경에도 같은 설정을 연결하세요.
-
-이제 Cloudflare가 제공하는 `*.pages.dev` 주소에서 게시물을 등록해 확인합니다. GitHub Pages 주소는 정적 파일만 제공하므로 API는 실행하지 않습니다. Cloudflare 배포 확인 후 Pages 주소를 새 서비스 주소로 바꾸거나, 사용자에게 Cloudflare 주소를 공유하세요.
-
 ## 사용
 
 - 분실 게시물은 분실 장소만 입력하고, 습득 게시물은 습득 장소와 보관 장소를 입력합니다.
