@@ -41,6 +41,16 @@ Settings → Variables and Secrets에서 `PASSWORD_PEPPER`를 Secret으로 추�
 
 이제 Cloudflare가 제공하는 `*.pages.dev` 주소에서 게시물을 등록해 확인합니다. GitHub Pages 주소는 정적 파일만 제공하므로 API는 실행하지 않습니다. Cloudflare 배포 확인 후 Pages 주소를 새 서비스 주소로 바꾸거나, 사용자에게 Cloudflare 주소를 공유하세요.
 
+## 자동 삭제 Worker
+
+`workers/resolved-post-cleanup/`은 Cron Trigger로 정기 실행되는 별도 Worker입니다. '주인을 찾았어요'로 처리된 게시물 중 한 달이 지난 것을 찾아 D1에서 삭제하고, 연결된 R2 사진도 함께 지웁니다.
+
+- **대상**: `resolved = 1`이고 처리 후 30일이 지난 게시물
+- **삭제 범위**: D1 게시물 행, 댓글(`ON DELETE CASCADE`), R2 사진
+- **바인딩**: Pages 프로젝트와 같은 D1(`DB`)과 R2(`IMAGES`) 사용
+
+Pages Functions는 Cron Trigger를 지원하지 않아서 Worker를 따로 두었습니다.
+
 ## 코드 구성
 
 - `js/`: 브라우저 UI와 API 호출 모듈
