@@ -1,4 +1,5 @@
 # 중일분실물DB
+![Student Project](https://img.shields.io/badge/STUDENT-PROJECT-0ea5e9?style=for-the-badge&logo=bookstack&logoColor=white)
 [![Live Demo](https://img.shields.io/badge/LIVE_DEMO-ONLINE-2ea043?style=for-the-badge&logo=googlechrome&logoColor=white)](https://jihs-lostnfound.pages.dev)
 ![Cloudflare Pages](https://img.shields.io/badge/CLOUDFLARE_PAGES-F38020?style=for-the-badge&logo=cloudflarepages&logoColor=white)
 
