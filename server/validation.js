@@ -3,8 +3,8 @@ export function validatePost(body, { creating = false } = {}) {
   const item = String(body.item || '').trim();
   const location = String(body.location || '').trim();
   const storage = String(body.storage || '').trim();
-  const foundDate = String(body.foundDate || '');
-  const foundTime = String(body.foundTime || '');
+  const eventDate = String(body.eventDate || body.foundDate || body.lostDate || '');
+  const eventTime = String(body.eventTime || body.foundTime || body.lostTime || '');
   const nickname = String(body.nickname || '').trim();
   const password = String(body.password || '');
   const simpleDescription = String(body.simpleDescription || '').trim();
@@ -18,13 +18,13 @@ export function validatePost(body, { creating = false } = {}) {
     throw Object.assign(new Error('습득물의 보관 장소를 입력해 주세요.'), { status: 400 });
   }
   const validDate = /^\d{4}-\d{2}-\d{2}$/.test(foundDate)
-    && !Number.isNaN(Date.parse(`${foundDate}T00:00:00Z`))
-    && new Date(`${foundDate}T00:00:00Z`).toISOString().slice(0, 10) === foundDate;
-  if (type === 'found' && !validDate) {
-    throw Object.assign(new Error('습득물의 발견 날짜를 선택해 주세요.'), { status: 400 });
+    && !Number.isNaN(Date.parse(`${eventDate}T00:00:00Z`))
+    && new Date(`${eventDate}T00:00:00Z`).toISOString().slice(0, 10) === eventDate;
+  if (!validDate) {
+    throw Object.assign(new Error('게시물 날짜를 선택해 주세요.'), { status: 400 });
   }
   if (type === 'found' && foundTime && (!/^\d{2}:\d{2}$/.test(foundTime) || Number(foundTime.slice(0, 2)) > 23 || Number(foundTime.slice(3, 5)) > 59)) {
-    throw Object.assign(new Error('습득물의 발견 시간을 확인해 주세요.'), { status: 400 });
+    throw Object.assign(new Error('게시물 시간을 확인해 주세요.'), { status: 400 });
   }
   if (!simpleDescription || simpleDescription.length > 120) {
     throw Object.assign(new Error('간단 설명을 120자 이내로 입력해 주세요.'), { status: 400 });
@@ -39,7 +39,7 @@ export function validatePost(body, { creating = false } = {}) {
 
   return {
     type, item, location, storage: type === 'found' ? storage : '',
-    foundDate: type === 'found' ? foundDate : '', foundTime: type === 'found' ? foundTime : '',
+    eventDate, eventTime,
     nickname, password, simpleDescription, detailedDescription, photoData: body.photo || ''
   };
 }
