@@ -88,10 +88,13 @@ function renderPost(post) {
   $('#detailLocation').textContent = post.location;
   $('#detailStorageWrap').hidden = post.type !== 'found';
   $('#detailStorage').textContent = post.storage || '';
-  $('#detailFoundDateWrap').hidden = post.type !== 'found' || !post.foundDate;
-  $('#detailFoundDate').textContent = post.foundDate || '';
-  $('#detailFoundTimeWrap').hidden = post.type !== 'found' || !post.foundTime;
-  $('#detailFoundTime').textContent = post.foundTime || '';
+  const eventTypeLabel = post.type === 'found' ? '발견' : '분실';
+  $('#detailEventDateWrap').hidden = !post.eventDate;
+  $('#detailEventDateLabel').textContent = `${eventTypeLabel} 날짜`;
+  $('#detailEventDate').textContent = post.eventDate || '';
+  $('#detailEventTimeWrap').hidden = !post.eventTime;
+  $('#detailEventTimeLabel').textContent = `${eventTypeLabel} 시간`;
+  $('#detailEventTime').textContent = post.eventTime || '';
   $('#detailDescription').textContent = post.detailedDescription || '추가 상세 설명이 없습니다.';
   $('#detailAvatar').textContent = (post.nickname || '?').slice(0, 1);
   $('#detailNickname').textContent = post.nickname;
