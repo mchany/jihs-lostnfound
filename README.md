@@ -3,7 +3,7 @@
 [![Live Demo](https://img.shields.io/badge/LIVE_DEMO-ONLINE-2ea043?style=for-the-badge&logo=googlechrome&logoColor=white)](https://jihs-lostnfound.pages.dev)
 ![Cloudflare Pages](https://img.shields.io/badge/CLOUDFLARE_PAGES-F38020?style=for-the-badge&logo=cloudflarepages&logoColor=white)
 
-분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리, D1과 R2에 게시물·댓글·사진을 저장하며, Workers가 게시물 cron 자동삭제를 실시합니다.
+분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리, D1과 R2에 게시물·댓글·사진을 저장하며, Workers가 게시물 Cron 자동삭제를 실시합니다.
 
 ## 로컬 실행
 
@@ -19,7 +19,7 @@ npm start
 
 ### 1. Pages 프로젝트 만들기
 
-Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 `mchany/jihs-lostnfound` 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
+먼저 해당 저장소를 포크합니다. 그 뒤 Cloudflare 대시보드에서 Workers & Pages → Create application → Pages → Connect to Git을 선택하고 포크한 저장소의 `main` 브랜치를 연결합니다. 빌드 명령은 비워 두고 빌드 출력 디렉터리를 `.`로 설정합니다. 저장소의 `wrangler.toml`은 Pages 설정 파일입니다.
 
 ### 2. D1 데이터베이스 만들기
 
