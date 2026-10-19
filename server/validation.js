@@ -17,13 +17,13 @@ export function validatePost(body, { creating = false } = {}) {
   if (type === 'found' && (!storage || storage.length > 80)) {
     throw Object.assign(new Error('습득물의 보관 장소를 입력해 주세요.'), { status: 400 });
   }
-  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(foundDate)
+  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(eventDate)
     && !Number.isNaN(Date.parse(`${eventDate}T00:00:00Z`))
     && new Date(`${eventDate}T00:00:00Z`).toISOString().slice(0, 10) === eventDate;
   if (!validDate) {
     throw Object.assign(new Error('게시물 날짜를 선택해 주세요.'), { status: 400 });
   }
-  if (type === 'found' && foundTime && (!/^\d{2}:\d{2}$/.test(foundTime) || Number(foundTime.slice(0, 2)) > 23 || Number(foundTime.slice(3, 5)) > 59)) {
+  if (eventTime && (!/^\d{2}:\d{2}$/.test(eventTime) || Number(eventTime.slice(0, 2)) > 23 || Number(eventTime.slice(3, 5)) > 59)) {
     throw Object.assign(new Error('게시물 시간을 확인해 주세요.'), { status: 400 });
   }
   if (!simpleDescription || simpleDescription.length > 120) {
