@@ -212,7 +212,14 @@ function setType(type) {
   const isFound = type === 'found';
   $('#storageField').hidden = !isFound;
   $('input[name="storage"]').required = isFound;
-  if (!isFound) $('input[name="storage"]').value = '';
+  $('#foundDateField').hidden = !isFound;
+  $('input[name="foundDate"]').required = isFound;
+  $('#foundTimeField').hidden = !isFound;
+  if (!isFound) {
+    $('input[name="storage"]').value = '';
+    $('input[name="foundDate"]').value = '';
+    $('input[name="foundTime"]').value = '';
+  }
 }
 
 function clearPhoto() {
@@ -261,6 +268,8 @@ export function openPostEditor(post, password) {
   $('input[name="item"]').value = post.item;
   $('input[name="location"]').value = post.location;
   $('input[name="storage"]').value = post.storage || '';
+  $('input[name="foundDate"]').value = post.foundDate || '';
+  $('input[name="foundTime"]').value = post.foundTime || '';
   $('textarea[name="simpleDescription"]').value = post.simpleDescription || '';
   $('textarea[name="detailedDescription"]').value = post.detailedDescription || '';
   $('input[name="nickname"]').value = post.nickname;
@@ -349,7 +358,8 @@ export function initPostForm(onSubmit) {
 
     const payload = {
       type: data.get('type'), item: String(data.get('item')).trim(), location: String(data.get('location')).trim(),
-      storage: String(data.get('storage') || '').trim(), simpleDescription: String(data.get('simpleDescription') || '').trim(),
+      storage: String(data.get('storage') || '').trim(), foundDate: String(data.get('foundDate') || ''), foundTime: String(data.get('foundTime') || ''),
+      simpleDescription: String(data.get('simpleDescription') || '').trim(),
       detailedDescription: String(data.get('detailedDescription') || '').trim(), nickname: String(data.get('nickname')).trim(), password, photo
     };
     if (isCreating) payload.turnstileToken = token;
