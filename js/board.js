@@ -17,7 +17,8 @@ export function renderBoard(posts, activeBoard, query = '') {
       ? `<img src="${escapeHTML(post.photo)}" alt="${escapeHTML(post.item)} 사진">`
       : `<div class="post-placeholder"><span class="placeholder-icon">${post.type === 'found' ? '⌕' : '↗'}</span></div>`;
     const storage = post.type === 'found'
-      ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
+      ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div><div class="meta-line"><span>발견 날짜</span><b>${escapeHTML(post.foundDate || '미입력')}</b></div>${post.foundTime ? `<div class="meta-line"><span>발견 시간</span><b>${escapeHTML(post.foundTime)}</b></div>` : ''}`
+      : '';
     const comments = `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>`;
     const isResolved = Boolean(post.resolved);
     const resolvedClass = isResolved ? ' is-resolved' : '';
