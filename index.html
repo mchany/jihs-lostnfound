@@ -68,8 +68,8 @@
         <label class="field field-full"><span>물품명 <i>*</i></span><input name="item" required maxlength="60" placeholder="예: 검정색 무선 이어폰"></label>
         <label class="field"><span id="locationLabel">분실 장소 <i>*</i></span><input name="location" required maxlength="80" placeholder="예: 본관 2층 복도"></label>
         <label class="field storage-field" id="storageField" hidden><span id="storageLabel">보관 장소 <i>*</i></span><input name="storage" maxlength="80" placeholder="예: 행정실 / 직접 보관 중"></label>
-        <label class="field found-date-field" id="foundDateField" hidden><span>발견 날짜 <i>*</i></span><input name="foundDate" type="date" required></label>
-        <label class="field found-time-field" id="foundTimeField" hidden><span>발견 시간 <small>(선택)</small></span><input name="foundTime" type="time"></label>
+        <label class="field found-date-field" id="eventDateField"><span id="eventDateLabel">분실 날짜 <i>*</i></span><input name="eventDate" type="date" required></label>
+        <label class="field found-time-field" id="eventTimeField"><span id="eventTimeLabel">분실 시간 <small>(선택)</small></span><input name="eventTime" type="time"></label>
         <label class="field field-full"><span>간단 설명 <i>*</i></span><textarea name="simpleDescription" rows="2" required maxlength="120" placeholder="목록에서 바로 확인할 핵심 특징을 적어 주세요."></textarea><small class="field-hint">목록 카드에 표시돼요. 120자 이내</small></label>
         <label class="field field-full"><span>상세 설명 <small>(선택)</small></span><textarea name="detailedDescription" rows="4" maxlength="2000" placeholder="색상, 세부 특징, 분실·습득 시간 등 더 자세히 적어 주세요."></textarea></label>
         <div class="field field-full"><span>사진 <small>(선택)</small></span><label class="upload-box" id="uploadBox"><input id="photoInput" type="file" accept="image/*"><span class="upload-icon">＋</span><span class="upload-copy"><b>사진을 추가해 주세요</b><small>이미지 파일, 최대 5MB</small></span><span class="upload-preview" id="uploadPreview"></span></label><button type="button" id="removePhoto" class="remove-photo">사진 삭제</button></div>
