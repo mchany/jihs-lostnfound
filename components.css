@@ -11,3 +11,5 @@
 @media(max-width:420px){.turnstile-widget{min-height:140px}}
 
 .dialog-actions .button-text:disabled,.icon-button:disabled{opacity:.45;cursor:not-allowed}
+
+.form-grid.is-lost #locationField{grid-column:1/-1}
