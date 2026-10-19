@@ -23,7 +23,6 @@ export function renderBoard(posts, activeBoard, query = '') {
       ? `<div class="meta-line"><span>${post.type === 'found' ? '발견 시간' : '분실 시간'}</span><b>${escapeHTML(post.eventTime)}</b></div>`
       : '';
     const foundMeta = post.type === 'found' ? storage : '';
-      : '';
     const comments = `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>`;
     const isResolved = Boolean(post.resolved);
     const resolvedClass = isResolved ? ' is-resolved' : '';
