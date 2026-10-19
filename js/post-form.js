@@ -207,7 +207,8 @@ async function initializeTurnstile(force = false) {
 }
 
 function setType(type) {
-  $$('input[name="type"]').forEach(input => input.closest('.type-option').classList.toggle('selected', input.value === type));
+  $('input[name="type"]').forEach(input => input.closest('.type-option').classList.toggle('selected', input.value === type));
+  $('.form-grid').classList.toggle('is-lost', type === 'lost');
   $('#locationLabel').innerHTML = `${type === 'found' ? '습득 장소' : '분실 장소'} <i>*</i>`;
   const isFound = type === 'found';
   $('#storageField').hidden = !isFound;
