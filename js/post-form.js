@@ -13,6 +13,59 @@ let configPromise = null;
 let initializationPromise = null;
 let turnstileToken = '';
 let isSubmitting = false;
+let isPreparingPhoto = false;
+let photoSelectionId = 0;
+
+const MAX_PHOTO_WIDTH = 1080;
+
+function resizePhotoIfNeeded(file) {
+  if (file.type === 'image/gif') return Promise.resolve(file);
+
+  const sourceUrl = URL.createObjectURL(file);
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      try {
+        if (image.naturalWidth <= MAX_PHOTO_WIDTH) {
+          resolve(file);
+          return;
+        }
+
+        const scale = MAX_PHOTO_WIDTH / image.naturalWidth;
+        const canvas = document.createElement('canvas');
+        canvas.width = MAX_PHOTO_WIDTH;
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('사진을 처리하지 못했어요.');
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const quality = file.type === 'image/jpeg' || file.type === 'image/webp' ? 0.88 : undefined;
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('사진을 압축하지 못했어요. 다시 선택해 주세요.'));
+        }, file.type, quality);
+      } catch (error) {
+        reject(error);
+      } finally {
+        URL.revokeObjectURL(sourceUrl);
+      }
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(sourceUrl);
+      reject(new Error('사진을 읽을 수 없어요. 다시 선택해 주세요.'));
+    };
+    image.src = sourceUrl;
+  });
+}
+
+function readAsDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('사진을 읽을 수 없어요. 다시 선택해 주세요.'));
+    reader.readAsDataURL(blob);
+  });
+}
 
 function setTurnstileStatus(message) {
   $('#turnstileStatus').textContent = message;
@@ -163,6 +216,8 @@ function setType(type) {
 }
 
 function clearPhoto() {
+  photoSelectionId += 1;
+  isPreparingPhoto = false;
   photo = '';
   $('#photoInput').value = '';
   $('#uploadPreview').style.backgroundImage = '';
@@ -237,26 +292,43 @@ export function initPostForm(onSubmit) {
   dialog.addEventListener('close', resetForm);
   $$('input[name="type"]').forEach(input => input.addEventListener('change', () => setType(input.value)));
 
-  $('#photoInput').addEventListener('change', () => {
+  $('#photoInput').addEventListener('change', async () => {
     const file = $('#photoInput').files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { setFormError('이미지 파일을 선택해 주세요.'); clearPhoto(); return; }
     if (file.size > 5 * 1024 * 1024) { setFormError('사진은 5MB 이하만 올릴 수 있어요.'); clearPhoto(); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      photo = String(reader.result);
+
+    const selectionId = ++photoSelectionId;
+    isPreparingPhoto = true;
+    $('.upload-copy b').textContent = '사진을 준비하고 있어요…';
+    setFormError('');
+    try {
+      const preparedPhoto = await resizePhotoIfNeeded(file);
+      if (selectionId !== photoSelectionId) return;
+      const dataUrl = await readAsDataUrl(preparedPhoto);
+      if (selectionId !== photoSelectionId) return;
+      photo = dataUrl;
       $('#uploadPreview').style.backgroundImage = `url("${photo}")`;
       $('#removePhoto').style.display = 'block';
       $('.upload-copy b').textContent = file.name;
-      setFormError('');
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      if (selectionId !== photoSelectionId) return;
+      photo = '';
+      $('#uploadPreview').style.backgroundImage = '';
+      $('#removePhoto').style.display = 'none';
+      $('.upload-copy b').textContent = '사진을 추가해 주세요';
+      $('#photoInput').value = '';
+      setFormError(error.message || '사진을 처리하지 못했어요. 다시 선택해 주세요.');
+    } finally {
+      if (selectionId === photoSelectionId) isPreparingPhoto = false;
+    }
   });
   $('#removePhoto').addEventListener('click', clearPhoto);
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (isSubmitting) return;
+    if (isPreparingPhoto) { setFormError('사진을 처리하고 있어요. 잠시만 기다려 주세요.'); return; }
     setFormError('');
 
     const data = new FormData(form);
