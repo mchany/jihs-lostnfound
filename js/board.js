@@ -17,7 +17,12 @@ export function renderBoard(posts, activeBoard, query = '') {
       ? `<img src="${escapeHTML(post.photo)}" alt="${escapeHTML(post.item)} 사진">`
       : `<div class="post-placeholder"><span class="placeholder-icon">${post.type === 'found' ? '⌕' : '↗'}</span></div>`;
     const storage = post.type === 'found'
-      ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div><div class="meta-line"><span>발견 날짜</span><b>${escapeHTML(post.foundDate || '미입력')}</b></div>${post.foundTime ? `<div class="meta-line"><span>발견 시간</span><b>${escapeHTML(post.foundTime)}</b></div>` : ''}`
+      ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
+    const eventDate = `<div class="meta-line"><span>${post.type === 'found' ? '발견 날짜' : '분실 날짜'}</span><b>${escapeHTML(post.eventDate || '미입력')}</b></div>`;
+    const eventTime = post.eventTime
+      ? `<div class="meta-line"><span>${post.type === 'found' ? '발견 시간' : '분실 시간'}</span><b>${escapeHTML(post.eventTime)}</b></div>`
+      : '';
+    const foundMeta = post.type === 'found' ? storage : '';
       : '';
     const comments = `<span class="post-comment-count">댓글 ${Number(post.commentCount) || 0}</span>`;
     const isResolved = Boolean(post.resolved);
@@ -29,7 +34,7 @@ export function renderBoard(posts, activeBoard, query = '') {
         <div class="post-image${resolvedClass}">${photo}${resolvedBanner}<span class="post-type ${post.type}">${boardName(post.type)}</span></div>
         <div class="post-body"><div class="post-title-row"><h3 class="post-title">${escapeHTML(post.item)}</h3><span class="post-date">${formatDate(post.createdAt)}</span></div>
           <p class="post-desc">${escapeHTML(post.simpleDescription)}</p>
-          <div class="post-meta"><div class="meta-line"><span>${post.type === 'found' ? '습득' : '분실'} 장소</span><b>${escapeHTML(post.location)}</b></div>${storage}</div>
+          <div class="post-meta"><div class="meta-line"><span>${post.type === 'found' ? '습득' : '분실'} 장소</span><b>${escapeHTML(post.location)}</b></div>${foundMeta}${eventDate}${eventTime}</div>
           <div class="post-author"><span class="author-name"><span class="author-avatar">${escapeHTML((post.nickname || '?').slice(0, 1))}</span>${escapeHTML(post.nickname)}</span>${comments}</div>
         </div>
       </a>
