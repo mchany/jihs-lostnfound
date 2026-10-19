@@ -212,14 +212,12 @@ function setType(type) {
   const isFound = type === 'found';
   $('#storageField').hidden = !isFound;
   $('input[name="storage"]').required = isFound;
-  $('#foundDateField').hidden = !isFound;
-  $('input[name="foundDate"]').required = isFound;
-  $('#foundTimeField').hidden = !isFound;
-  if (!isFound) {
-    $('input[name="storage"]').value = '';
-    $('input[name="foundDate"]').value = '';
-    $('input[name="foundTime"]').value = '';
-  }
+  $('#eventDateLabel').innerHTML = `${isFound ? '발견 날짜' : '분실 날짜'} <i>*</i>`;
+  $('#eventDateField').hidden = false;
+  $('input[name="eventDate"]').required = true;
+  $('#eventTimeLabel').innerHTML = `${isFound ? '발견 시간' : '분실 시간'} <small>(선택)</small>`;
+  $('#eventTimeField').hidden = false;
+  if (!isFound) $('input[name="storage"]').value = '';
 }
 
 function clearPhoto() {
@@ -268,8 +266,8 @@ export function openPostEditor(post, password) {
   $('input[name="item"]').value = post.item;
   $('input[name="location"]').value = post.location;
   $('input[name="storage"]').value = post.storage || '';
-  $('input[name="foundDate"]').value = post.foundDate || '';
-  $('input[name="foundTime"]').value = post.foundTime || '';
+  $('input[name="eventDate"]').value = post.eventDate || '';
+  $('input[name="eventTime"]').value = post.eventTime || '';
   $('textarea[name="simpleDescription"]').value = post.simpleDescription || '';
   $('textarea[name="detailedDescription"]').value = post.detailedDescription || '';
   $('input[name="nickname"]').value = post.nickname;
@@ -358,7 +356,7 @@ export function initPostForm(onSubmit) {
 
     const payload = {
       type: data.get('type'), item: String(data.get('item')).trim(), location: String(data.get('location')).trim(),
-      storage: String(data.get('storage') || '').trim(), foundDate: String(data.get('foundDate') || ''), foundTime: String(data.get('foundTime') || ''),
+      storage: String(data.get('storage') || '').trim(), eventDate: String(data.get('eventDate') || ''), eventTime: String(data.get('eventTime') || ''),
       simpleDescription: String(data.get('simpleDescription') || '').trim(),
       detailedDescription: String(data.get('detailedDescription') || '').trim(), nickname: String(data.get('nickname')).trim(), password, photo
     };
