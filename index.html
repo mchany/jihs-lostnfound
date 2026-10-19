@@ -31,20 +31,16 @@
     </header>
 
     <main>
-      <section class="board-section" aria-labelledby="boardTitle">
-        <div class="section-heading">
-          <div><p class="eyebrow section-eyebrow">THE COMMUNITY BOARD</p><h2 id="boardTitle">분실물 게시판</h2></div>
-          <div class="section-heading-actions">
-            <p class="section-caption">혹시 본 적 있나요?<br>작은 제보가 큰 도움이 됩니다.</p>
-            <button class="button button-primary board-create" id="openPost" type="button"><span class="plus">＋</span> 게시물 올리기</button>
-          </div>
-        </div>
+      <section class="board-section" aria-label="분실물 게시판">
         <div class="board-toolbar">
           <div class="tabs" role="tablist" aria-label="게시판 분류">
             <button class="tab active" data-board="lost" role="tab" aria-selected="true"><span class="tab-icon lost-icon">↗</span> 분실했어요 <span class="tab-count" id="lostCount">0</span></button>
             <button class="tab" data-board="found" role="tab" aria-selected="false"><span class="tab-icon found-icon">⌕</span> 주웠어요 <span class="tab-count" id="foundCount">0</span></button>
           </div>
-          <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="물품명, 장소 검색" aria-label="게시물 검색"><kbd>⌘ K</kbd></label>
+          <div class="board-toolbar-actions">
+            <button class="button button-primary board-create" id="openPost" type="button"><span class="plus">＋</span> 게시물 올리기</button>
+            <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="물품명, 장소 검색" aria-label="게시물 검색"><kbd>⌘ K</kbd></label>
+          </div>
         </div>
         <div class="board-intro"><span id="boardIntroLabel">분실했어요</span><span class="intro-rule"></span><span id="resultCount">0개의 게시물</span></div>
         <div class="post-grid" id="postGrid"></div>
