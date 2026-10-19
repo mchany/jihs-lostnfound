@@ -3,7 +3,7 @@
 [![Live Demo](https://img.shields.io/badge/LIVE_DEMO-ONLINE-2ea043?style=for-the-badge&logo=googlechrome&logoColor=white)](https://jihs-lostnfound.pages.dev)
 ![Cloudflare Pages](https://img.shields.io/badge/CLOUDFLARE_PAGES-F38020?style=for-the-badge&logo=cloudflarepages&logoColor=white)
 
-분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리하며 D1과 R2에 게시물·댓글·사진을 저장합니다.
+분실·습득 게시판, 상세 페이지, 댓글 기능을 제공하는 학교 분실물 관리 사이트입니다. 로컬 개발은 Node.js 서버를 사용하고, Cloudflare Pages 배포에서는 Pages Functions가 API를 처리, D1과 R2에 게시물·댓글·사진을 저장하며, Workers가 게시물 cron 자동삭제를 실시합니다.
 
 ## 로컬 실행
 
