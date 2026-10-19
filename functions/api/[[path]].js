@@ -70,6 +70,8 @@ function toPublicPost(row) {
     item: row.item,
     location: row.location,
     storage: row.storage || '',
+    foundDate: row.found_date || '',
+    foundTime: row.found_time || '',
     simpleDescription: row.simple_description,
     nickname: row.nickname,
     photo: row.photo || '',
@@ -112,6 +114,8 @@ async function ensureCommentSchema(db) {
         if (!commentColumns.has('password_hash')) statements.push(db.prepare("ALTER TABLE post_comments ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''"));
       }
       if (!postColumns.has('resolved')) statements.push(db.prepare('ALTER TABLE posts ADD COLUMN resolved INTEGER NOT NULL DEFAULT 0'));
+      if (!postColumns.has('found_date')) statements.push(db.prepare("ALTER TABLE posts ADD COLUMN found_date TEXT NOT NULL DEFAULT ''"));
+      if (!postColumns.has('found_time')) statements.push(db.prepare("ALTER TABLE posts ADD COLUMN found_time TEXT NOT NULL DEFAULT ''"));
       if (statements.length) {
         try {
           await db.batch(statements);
@@ -122,7 +126,8 @@ async function ensureCommentSchema(db) {
           ]);
           const readyComments = new Set((refreshedComments.results || []).map(column => column.name));
           const readyPosts = new Set((refreshedPosts.results || []).map(column => column.name));
-          if (!readyComments.has('password_salt') || !readyComments.has('password_hash') || !readyPosts.has('resolved')) throw error;
+          if (!readyComments.has('password_salt') || !readyComments.has('password_hash') || !readyPosts.has('resolved')
+            || !readyPosts.has('found_date') || !readyPosts.has('found_time')) throw error;
         }
       }
       const legacy = await db.prepare("SELECT COUNT(*) AS count FROM post_comments WHERE password_salt = '' OR password_hash = ''").first();
@@ -214,9 +219,9 @@ async function handle(request, env) {
     const photo = await storePhoto(env.IMAGES, input.photoData);
     try {
       await env.DB.prepare(`
-        INSERT INTO posts (id, type, item, location, storage, simple_description, detailed_description, nickname, photo, password_salt, password_hash, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(id, input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, passwordFields.passwordSalt, passwordFields.passwordHash, now, now).run();
+        INSERT INTO posts (id, type, item, location, storage, found_date, found_time, simple_description, detailed_description, nickname, photo, password_salt, password_hash, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, input.type, input.item, input.location, input.storage, input.foundDate, input.foundTime, input.simpleDescription, input.detailedDescription, input.nickname, photo, passwordFields.passwordSalt, passwordFields.passwordHash, now, now).run();
     } catch (error) {
       await deletePhoto(env.IMAGES, photo);
       throw error;
@@ -296,8 +301,8 @@ async function handle(request, env) {
     const updatedAt = new Date().toISOString();
     try {
       await env.DB.prepare(`
-        UPDATE posts SET type = ?, item = ?, location = ?, storage = ?, simple_description = ?, detailed_description = ?, nickname = ?, photo = ?, resolved = ?, updated_at = ? WHERE id = ?
-      `).bind(input.type, input.item, input.location, input.storage, input.simpleDescription, input.detailedDescription, input.nickname, photo, post.resolved ? 1 : 0, updatedAt, id).run();
+        UPDATE posts SET type = ?, item = ?, location = ?, storage = ?, found_date = ?, found_time = ?, simple_description = ?, detailed_description = ?, nickname = ?, photo = ?, resolved = ?, updated_at = ? WHERE id = ?
+      `).bind(input.type, input.item, input.location, input.storage, input.foundDate, input.foundTime, input.simpleDescription, input.detailedDescription, input.nickname, photo, post.resolved ? 1 : 0, updatedAt, id).run();
     } catch (error) {
       if (photo !== post.photo) await deletePhoto(env.IMAGES, photo);
       throw error;
