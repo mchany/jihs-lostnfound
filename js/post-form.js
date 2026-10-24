@@ -237,7 +237,7 @@ function resetForm() {
   clearPhoto();
   $('#formError').textContent = '';
   $('#dialogTitle').textContent = '게시물 올리기';
-  $('#submitPost').innerHTML = '게시물 등록 <span>↗</span>';
+  $('#submitPost').innerHTML = '게시물 등록';
   $('input[name="password"]').required = true;
   $('input[name="password"]').readOnly = false;
   $('input[name="type"][value="lost"]').checked = true;
@@ -281,7 +281,7 @@ export function openPostEditor(post, password) {
     $('.upload-copy b').textContent = '사진이 등록되어 있어요';
   }
   $('#dialogTitle').textContent = '게시물 수정';
-  $('#submitPost').innerHTML = '수정 완료 <span>↗</span>';
+  $('#submitPost').innerHTML = '수정 완료';
   updateSubmitState();
   dialog.showModal();
 }

@@ -1,70 +1,10 @@
-html[data-theme="dark"]{color-scheme:dark;--ink:#f2f5fa;--muted:#a4b5d1;--line:#496894;--paper:#202123;--white:#263b61;--green:#a4b5d1;--green-dark:#b0cbe6;--mint:#263b61;--orange:#fed6ce}
-html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
-html[data-theme="dark"] .topbar,html[data-theme="dark"] .hero,html[data-theme="dark"] .site-footer{border-color:#496894}
-html[data-theme="dark"] .topbar-note,html[data-theme="dark"] .hero-desc,html[data-theme="dark"] .section-caption,html[data-theme="dark"] .hero-bottom,html[data-theme="dark"] .board-intro,html[data-theme="dark"] .board-footer,html[data-theme="dark"] .site-footer{color:#a4b5d1}
-html[data-theme="dark"] .live-dot{background:#a4b5d1;box-shadow:0 0 0 4px #263b61}
-html[data-theme="dark"] .hero h1 span{color:#b0cbe6}html[data-theme="dark"] .tab.active:after{background:#b0cbe6}
-html[data-theme="dark"] .button-primary{background:#496894;color:#fff}
-html[data-theme="dark"] .button-primary:hover{background:#1d3156}
-html[data-theme="dark"] .hero-bottom-line,html[data-theme="dark"] .eyebrow-line{background:#a4b5d1}
-html[data-theme="dark"] .art-orbit{border-color:#496894}html[data-theme="dark"] .orbit-two{border-color:#496894}
-html[data-theme="dark"] .art-sun,html[data-theme="dark"] .art-tag b{background:#263b61}
-html[data-theme="dark"] .art-card{background:#263b61;border-color:#496894;box-shadow:0 20px 45px #0005}
-html[data-theme="dark"] .art-card-line{background:#496894}
-html[data-theme="dark"] .art-photo{background:#496894}html[data-theme="dark"] .art-photo:after{background:#1d3156}
-html[data-theme="dark"] .art-bag{background:#a4b5d1;box-shadow:inset -7px 0 #496894}html[data-theme="dark"] .art-bag:before{border-color:#a4b5d1}
-html[data-theme="dark"] .art-tag{color:#b0cbe6}html[data-theme="dark"] .art-card-dot{background:#fed6ce}
-html[data-theme="dark"] .art-label{color:#a4b5d1}
-html[data-theme="dark"] .board-toolbar,html[data-theme="dark"] .board-footer,html[data-theme="dark"] .post-meta,html[data-theme="dark"] .detail-divider,html[data-theme="dark"] .detail-description,html[data-theme="dark"] .detail-author,html[data-theme="dark"] .comment-list,html[data-theme="dark"] .comment{border-color:#496894}
-html[data-theme="dark"] .tab{color:#a4b5d1}html[data-theme="dark"] .tab.active{color:#f2f5fa}html[data-theme="dark"] .tab.active:after{background:#b0cbe6}
-html[data-theme="dark"] .tab-count{color:#a4b5d1}
-html[data-theme="dark"] .lost-icon,html[data-theme="dark"] .type-symbol{background:#fed6ce;color:#1d3156}
-html[data-theme="dark"] .found-icon,html[data-theme="dark"] .found-symbol{background:#263b61;color:#b0cbe6}
-html[data-theme="dark"] .search-box{background:#263b61;border-color:#496894;color:#a4b5d1}
-html[data-theme="dark"] .search-box input{color:#f2f5fa}html[data-theme="dark"] .search-box input::placeholder{color:#a4b5d1}
-html[data-theme="dark"] .search-box kbd{border-color:#496894;color:#a4b5d1}
-html[data-theme="dark"] .post-card,html[data-theme="dark"] .empty-state,html[data-theme="dark"] .detail-article,html[data-theme="dark"] .comments-panel{background:#263b61;border-color:#496894}
-html[data-theme="dark"] .post-card:hover{box-shadow:0 12px 24px #0004}
-html[data-theme="dark"] .post-image{background:#1d3156}
-html[data-theme="dark"] .post-placeholder{background:linear-gradient(135deg,#263b61,#1d3156);color:#a4b5d1}
-html[data-theme="dark"] .placeholder-icon{border-color:#496894}
-html[data-theme="dark"] .post-type{background:#496894;color:#fed6ce}html[data-theme="dark"] .post-type.found{color:#b0cbe6}
-html[data-theme="dark"] .post-title,html[data-theme="dark"] .section-heading h2,html[data-theme="dark"] .empty-state h3,html[data-theme="dark"] .detail-copy h1,html[data-theme="dark"] .comments-heading h2{color:#f2f5fa}
-html[data-theme="dark"] .post-date,html[data-theme="dark"] .post-author,html[data-theme="dark"] .post-actions button,html[data-theme="dark"] .meta-line{color:#a4b5d1}
-html[data-theme="dark"] .meta-line span,html[data-theme="dark"] .detail-facts span{color:#a4b5d1}
-html[data-theme="dark"] .meta-line b,html[data-theme="dark"] .detail-facts b{color:#f2f5fa}
-html[data-theme="dark"] .post-desc,html[data-theme="dark"] .detail-description p,html[data-theme="dark"] .comment p{color:#b0cbe6}
-html[data-theme="dark"] .author-name,html[data-theme="dark"] .detail-author{color:#b0cbe6}
-html[data-theme="dark"] .author-avatar,html[data-theme="dark"] .comment-count{background:#496894;color:#b0cbe6}
-html[data-theme="dark"] .post-comment-count,html[data-theme="dark"] .empty-kicker{color:#b0cbe6}
-html[data-theme="dark"] .empty-state>p:not(.empty-kicker),html[data-theme="dark"] .comment-empty,html[data-theme="dark"] .comments-hint{color:#a4b5d1}
-html[data-theme="dark"] .empty-illustration .empty-ring{border-color:#a4b5d1}html[data-theme="dark"] .empty-handle{background:#a4b5d1}
-html[data-theme="dark"] .button-outline{border-color:#a4b5d1;color:#b0cbe6}
-html[data-theme="dark"] .post-dialog{background:#263b61;border-color:#496894;color:#f2f5fa}
-html[data-theme="dark"] .post-dialog::backdrop{background:#101e37d9}
-html[data-theme="dark"] .icon-button,html[data-theme="dark"] .button-text{color:#a4b5d1}
-html[data-theme="dark"] .type-option{background:#263b61;border-color:#496894}
-html[data-theme="dark"] .type-option.selected{background:#1d3156;border-color:#a4b5d1;box-shadow:inset 0 0 0 1px #a4b5d1}
-html[data-theme="dark"] .type-option b,html[data-theme="dark"] .field>span:first-child{color:#f2f5fa}
-html[data-theme="dark"] .type-option small,html[data-theme="dark"] .field small,html[data-theme="dark"] .field-hint{color:#a4b5d1}
-html[data-theme="dark"] .field input,html[data-theme="dark"] .field textarea{background:#1d3156;border-color:#496894;color:#f2f5fa}
-html[data-theme="dark"] .field input::placeholder,html[data-theme="dark"] .field textarea::placeholder{color:#a4b5d1}
-html[data-theme="dark"] .field input:focus,html[data-theme="dark"] .field textarea:focus{border-color:#b0cbe6;box-shadow:0 0 0 3px #496894}
-html[data-theme="dark"] .upload-box{background:#1d3156;border-color:#496894}
-html[data-theme="dark"] .upload-icon{background:#263b61;color:#b0cbe6}
-html[data-theme="dark"] .upload-copy b{color:#b0cbe6}html[data-theme="dark"] .upload-copy small{color:#a4b5d1}
-html[data-theme="dark"] .field-divider{border-color:#496894;color:#b0cbe6}html[data-theme="dark"] .field-divider span+span{color:#a4b5d1}
-html[data-theme="dark"] .remove-photo{background:#263b61;color:#b0cbe6}
-html[data-theme="dark"] .auth-copy{color:#a4b5d1}html[data-theme="dark"] .back-link{color:#b0cbe6}
-html[data-theme="dark"] .detail-photo{background:linear-gradient(140deg,#263b61,#1d3156)}
-html[data-theme="dark"] .detail-description h2{color:#f2f5fa}
-html[data-theme="dark"] .comment-head b{color:#f2f5fa}html[data-theme="dark"] .comment-head time{color:#a4b5d1}
-html[data-theme="dark"] .detail-not-found h1{color:#f2f5fa}html[data-theme="dark"] .detail-not-found p:not(.eyebrow){color:#a4b5d1}
-html[data-theme="dark"] .theme-toggle{background:#263b61;border-color:#496894;color:#b0cbe6}
-html[data-theme="dark"] .theme-toggle:hover{background:#496894;color:#f2f5fa}
-html[data-theme="dark"] .toast{background:#496894;color:#fff}
-.topbar-tools{display:flex;align-items:center;gap:24px}.theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid #d7e0ed;border-radius:20px;background:#f6f8fc;padding:7px 10px;color:#496894;font:500 10px 'Noto Sans KR',sans-serif;cursor:pointer;transition:background .2s,border-color .2s,color .2s}.theme-toggle:hover{background:#b0cbe6;border-color:#a4b5d1}.theme-icon{font:16px 'DM Sans',sans-serif;line-height:1}.detail-shell .topbar-tools{gap:18px}.detail-shell .theme-toggle{margin-left:0}@media(max-width:600px){.topbar-tools{gap:10px}.topbar-tools .topbar-note{font-size:0}.topbar-tools .topbar-note .live-dot{margin-right:0}.theme-toggle{padding:6px 8px;font-size:9px;gap:5px}.theme-icon{font-size:15px}.detail-shell .topbar-tools{gap:9px}.back-link{font-size:10px}}
-
-html[data-theme="dark"] .brand-logo-light{display:none}html[data-theme="dark"] .brand-logo-dark{display:block}
-
-html[data-theme="dark"] .post-image.is-resolved:after{background:#1d3156a6}html[data-theme="dark"] .post-resolved-banner{background:#fed6ce;color:#1d3156}
+/* Hallmark · shape: app screen · genre: modern-minimal (inferred) · theme: Dose (blue adaptation) · redesign: full · nav: compact top bar · signature: searchable lost-and-found register · states: empty, full, error · dose: white · axes: light/grotesk-sans/chromatic-blue · contrast: pass · v2.0.0 */
+/* critique: preserve the searchable register; bring the school emblem into a calm, blue-led palette */
+html[data-theme="dark"]{
+ color-scheme:dark;
+ --color-paper:oklch(16% .012 255);--color-paper-2:oklch(21% .016 255);--color-paper-3:oklch(26% .02 255);
+ --color-ink:oklch(93% .008 255);--color-ink-2:oklch(85% .012 255);--color-muted:oklch(73% .014 255);--color-rule:oklch(37% .014 255);
+ --color-accent:oklch(72% .13 250);--color-accent-deep:oklch(76% .12 250);--color-accent-soft:oklch(30% .05 250);--color-accent-ink:oklch(18% .02 250);--color-focus:oklch(80% .13 250);
+ --color-neutral-chip:oklch(27% .016 255);--color-photo-ground:oklch(24% .02 255);
+ --shadow-card:0 1px 2px oklch(5% .01 255 / .35),0 12px 26px -20px oklch(5% .01 255 / .55)
+}

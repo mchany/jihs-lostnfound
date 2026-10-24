@@ -28,7 +28,7 @@ function openCommentManager(action, comment) {
   form.elements.content.value = comment.content;
   form.elements.password.value = '';
   $('#commentManageError').textContent = '';
-  $('#commentManageSubmit').innerHTML = isEditing ? '수정 완료 <span>↗</span>' : '댓글 삭제 <span>↗</span>';
+  $('#commentManageSubmit').innerHTML = isEditing ? '수정 완료' : '댓글 삭제';
   $('#commentManageSubmit').classList.toggle('button-danger', !isEditing);
   $('#commentManageDialog').showModal();
 }
@@ -77,7 +77,7 @@ $('#commentManageForm').addEventListener('submit', async event => {
 
 function renderPost(post) {
   currentPost = post;
-  document.title = `${post.item} · 중일분실물DB`;
+  document.title = post.item + ' | 중일분실물DB';
   $('#detailBoard').textContent = boardName(post.type);
   $('#detailType').textContent = boardName(post.type);
   $('#detailType').classList.add(post.type);
@@ -104,7 +104,7 @@ function renderPost(post) {
   detailPhoto.classList.toggle('is-resolved', isResolved);
   detailPhoto.innerHTML = (post.photo
     ? `<img src="${escapeHTML(post.photo)}" alt="${escapeHTML(post.item)} 사진">`
-    : '<span class="placeholder-icon">⌕</span>') + resolvedBanner;
+    : '<div class="post-placeholder" role="img" aria-label="등록된 사진이 없어요."></div>') + resolvedBanner;
 
   const commentsPanel = $('#commentsPanel');
   commentsPanel.hidden = false;

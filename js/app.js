@@ -1,8 +1,8 @@
 import { listPosts, createPost, updatePost, deletePost, verifyPostPassword, setPostResolved } from './api.js';
 import { $, $$, showToast } from './dom.js';
-import { renderBoard } from './board.js';
-import { initPostForm, openPostEditor, closePostForm } from './post-form.js';
-import { initAuthDialog, openAuthDialog } from './auth-dialog.js';
+import { renderBoard } from './board.js?hallmark=redesign';
+import { initPostForm, openPostEditor, closePostForm } from './post-form.js?hallmark=redesign';
+import { initAuthDialog, openAuthDialog } from './auth-dialog.js?hallmark=redesign';
 
 let posts = [];
 let activeBoard = 'lost';

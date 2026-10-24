@@ -21,7 +21,7 @@ export function openAuthDialog(action, post) {
       : isReopen
         ? '게시물 작성 때 설정한 비밀번호를 입력하면 찾음 상태를 취소합니다.'
         : '이 게시물의 비밀번호를 입력하면 삭제됩니다.';
-  $('#authSubmit').innerHTML = isEdit ? '수정하기 <span>↗</span>' : isResolve ? '주인을 찾았어요 <span>↗</span>' : isReopen ? '찾음 취소 <span>↗</span>' : '삭제하기 <span>↗</span>';
+  $('#authSubmit').innerHTML = isEdit ? '수정하기' : isResolve ? '주인을 찾았어요' : isReopen ? '찾음 취소' : '삭제하기';
   dialog.showModal();
 }
 

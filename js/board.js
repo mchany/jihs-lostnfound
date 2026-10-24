@@ -15,7 +15,7 @@ export function renderBoard(posts, activeBoard, query = '') {
     const detailUrl = `/detail.html?id=${encodeURIComponent(post.id)}`;
     const photo = post.photo
       ? `<img src="${escapeHTML(post.photo)}" alt="${escapeHTML(post.item)} 사진">`
-      : `<div class="post-placeholder"><span class="placeholder-icon">${post.type === 'found' ? '⌕' : '↗'}</span></div>`;
+      : `<div class="post-placeholder" aria-hidden="true"></div>`;
     const storage = post.type === 'found'
       ? `<div class="meta-line"><span>보관</span><b>${escapeHTML(post.storage)}</b></div>` : '';
     const eventDate = `<div class="meta-line"><span>${post.type === 'found' ? '발견 날짜' : '분실 날짜'}</span><b>${escapeHTML(post.eventDate || '미입력')}</b></div>`;
@@ -45,13 +45,11 @@ export function renderBoard(posts, activeBoard, query = '') {
   empty.hidden = shown.length !== 0;
   grid.hidden = shown.length === 0;
   if (shown.length === 0 && normalizedQuery) {
-    $('.empty-kicker').textContent = '검색 결과가 없어요';
-    $('.empty-state h3').textContent = '다른 검색어를 입력해 보세요.';
+    $('.empty-state h2').textContent = '다른 검색어를 입력해 보세요.';
     $('.empty-state>p:not(.empty-kicker)').innerHTML = '물품명이나 장소의 일부만 입력해도<br>게시물을 찾을 수 있어요.';
     $('#emptyPost').hidden = true;
   } else {
-    $('.empty-kicker').textContent = '아직 게시물이 없어요';
-    $('.empty-state h3').textContent = '첫 번째 소식을 남겨 주세요.';
+    $('.empty-state h2').textContent = '첫 번째 소식을 남겨 주세요.';
     $('.empty-state>p:not(.empty-kicker)').innerHTML = '분실했거나 주운 물건이 있다면<br>게시판에 올려 함께 찾아봐요.';
     $('#emptyPost').hidden = false;
   }

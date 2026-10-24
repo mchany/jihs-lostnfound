@@ -3,25 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#f7f5ef" />
-  <title>게시물 상세 · 중일분실물DB</title>
+  <meta name="theme-color" content="#f3f5fa" />
+  <meta name="description" content="중일분실물DB 게시물의 위치와 상세 내용을 확인하고 댓글로 소식을 남기세요." />
+  <title>게시물 상세 | 중일분실물DB</title>
   <script>try{if(localStorage.getItem('jungil-theme')==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css" />
-  <link rel="stylesheet" href="/components.css" />
-  <link rel="stylesheet" href="/detail.css" />
-  <link rel="stylesheet" href="/theme.css" />
+<link rel="stylesheet" href="styles.css?hallmark=pretendard" />
+  <link rel="stylesheet" href="base.css?hallmark=pretendard" />
+  <link rel="stylesheet" href="components.css?hallmark=pretendard" />
+  <link rel="stylesheet" href="detail.css?hallmark=pretendard" />
+  <link rel="stylesheet" href="theme.css?hallmark=pretendard" />
 </head>
 <body>
   <div class="site-shell detail-shell">
     <header class="topbar">
-      <a class="brand" href="/" aria-label="중일분실물DB 홈"><img class="brand-logo brand-logo-light" src="/school-emblem.png" alt="" aria-hidden="true"><img class="brand-logo brand-logo-dark" src="/school-emblem-dark.png" alt="" aria-hidden="true"><span class="brand-name">중일<span>분실물DB</span></span></a>
-      <div class="topbar-tools"><a class="back-link" href="/">← 게시판으로</a><button class="theme-toggle" type="button" id="themeToggle" aria-label="다크 모드 켜기" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">다크 모드</span></button></div>
+      <a class="brand" href="/" aria-label="중일분실물DB 홈"><img class="brand-mark brand-mark-light" src="/school-emblem.png" alt="" /><img class="brand-mark brand-mark-dark" src="/school-emblem-dark.png" alt="" /><span class="brand-name">중일분실물DB</span></a>
+      <div class="topbar-tools"><a class="back-link" href="/">게시판으로</a><button class="theme-toggle" type="button" id="themeToggle" aria-label="다크 모드 켜기" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">다크 모드</span></button></div>
     </header>
     <main class="detail-main" id="detailMain" hidden>
-      <p class="eyebrow detail-eyebrow">COMMUNITY BOARD <span>/</span> <span id="detailBoard"></span></p>
+      <div class="detail-context"><span id="detailBoard"></span><span>게시물</span></div>
       <div class="detail-layout">
         <article class="detail-article">
           <div class="detail-photo" id="detailPhoto"></div>
@@ -36,7 +35,7 @@
           </div>
         </article>
         <aside class="comments-panel" id="commentsPanel">
-          <div class="comments-heading"><div><p class="eyebrow">LET'S HELP</p><h2 id="commentsTitle">찾았어요? 알려 주세요.</h2></div><span class="comment-count" id="commentCount">0</span></div>
+          <div class="comments-heading"><div><h2 id="commentsTitle">찾았어요? 알려 주세요.</h2></div><span class="comment-count" id="commentCount">0</span></div>
           <p class="comments-hint" id="commentsHint">이 분실물을 보았거나 습득했다면 댓글로 소식을 남겨 주세요.</p>
           <div class="comment-list" id="commentList"></div>
           <form class="comment-form" id="commentForm">
@@ -44,27 +43,27 @@
             <label class="field"><span>댓글</span><textarea name="content" required maxlength="500" rows="3" placeholder="장소나 보관 중인 곳을 알려 주세요."></textarea></label>
             <label class="field"><span>비밀번호</span><input name="password" type="password" required minlength="4" maxlength="32" autocomplete="new-password" placeholder="수정·삭제에 사용할 비밀번호"><small class="field-hint">댓글을 수정하거나 삭제할 때 필요해요.</small></label>
             <p class="form-error" id="commentError" role="alert"></p>
-            <button class="button button-primary" type="submit">댓글 남기기 <span>↗</span></button>
+            <button class="button button-primary" type="submit">댓글 남기기</button>
           </form>
         </aside>
       </div>
     </main>
-    <section class="detail-not-found" id="detailNotFound" hidden><p class="eyebrow">NO POST FOUND</p><h1>게시물을 찾을 수 없어요.</h1><p>삭제되었거나 주소가 올바르지 않을 수 있어요.</p><a class="button button-primary" href="/">게시판으로 돌아가기</a></section>
-    <footer class="site-footer detail-footer"><a class="brand footer-brand" href="/"><img class="brand-logo brand-logo-light" src="/school-emblem.png" alt="" aria-hidden="true"><img class="brand-logo brand-logo-dark" src="/school-emblem-dark.png" alt="" aria-hidden="true"><span class="brand-name">중일<span>분실물DB</span></span></a><span>좋은 마음이 잘 전달될 수 있도록, 서로 배려해 주세요.</span><span class="footer-copyright">Copyright (c) 2026 mchany / MIT LICENSE</span></footer>
+    <section class="detail-not-found" id="detailNotFound" hidden><h1>게시물을 찾을 수 없어요.</h1><p>삭제되었거나 주소가 올바르지 않을 수 있어요.</p><a class="button button-primary" href="/">게시판으로 돌아가기</a></section>
+    <footer class="site-footer detail-footer"><a class="brand footer-brand" href="/"><img class="brand-mark brand-mark-light" src="/school-emblem.png" alt="" /><img class="brand-mark brand-mark-dark" src="/school-emblem-dark.png" alt="" /><span class="brand-name">중일분실물DB</span></a><span>좋은 마음이 잘 전달될 수 있도록, 서로 배려해 주세요.</span><span class="footer-copyright">2026 mchany / MIT License</span></footer>
   </div>
   <dialog id="commentManageDialog" class="post-dialog auth-dialog comment-manage-dialog">
     <form id="commentManageForm" class="post-form">
-      <div class="dialog-top"><div><p class="eyebrow">COMMENT MANAGEMENT</p><h2 id="commentManageTitle">댓글 수정</h2></div><button type="button" class="icon-button" id="closeCommentManage" aria-label="닫기">×</button></div>
+      <div class="dialog-top"><div><h2 id="commentManageTitle">댓글 수정</h2></div><button type="button" class="icon-button" id="closeCommentManage" aria-label="닫기">×</button></div>
       <p class="auth-copy" id="commentManageCopy">작성한 닉네임과 비밀번호를 입력해 주세요.</p>
       <label class="field"><span>닉네임</span><input name="nickname" required maxlength="20" autocomplete="username"></label>
       <label class="field" id="commentManageContentField"><span>댓글</span><textarea name="content" required maxlength="500" rows="4"></textarea></label>
       <label class="field"><span>비밀번호</span><input name="password" type="password" required minlength="4" maxlength="32" autocomplete="current-password" placeholder="댓글 작성 때 설정한 비밀번호"></label>
       <p class="form-error" id="commentManageError" role="alert"></p>
-      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelCommentManage">취소</button><button type="submit" class="button button-primary" id="commentManageSubmit">수정 완료 <span>↗</span></button></div>
+      <div class="dialog-actions"><button type="button" class="button button-text" id="cancelCommentManage">취소</button><button type="submit" class="button button-primary" id="commentManageSubmit">수정 완료</button></div>
     </form>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="/js/theme.js"></script>
-  <script type="module" src="/js/detail.js"></script>
+  <script type="module" src="/js/detail.js?hallmark=pretendard"></script>
 </body>
 </html>
