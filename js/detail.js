@@ -79,8 +79,6 @@ function renderPost(post) {
   currentPost = post;
   document.title = post.item + ' | 중일분실물DB';
   $('#detailBoard').textContent = boardName(post.type);
-  $('#detailType').textContent = boardName(post.type);
-  $('#detailType').classList.add(post.type);
   $('#detailDate').textContent = formatDate(post.createdAt);
   $('#detailItem').textContent = post.item;
   $('#detailSimple').textContent = post.simpleDescription;
